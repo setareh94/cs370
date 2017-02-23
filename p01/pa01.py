@@ -6,13 +6,17 @@ numberOfStates = 0
 alphabets = []
 states = {} 
 transition = defaultdict(set)
-startState
+startState = 0
 acceptingStates = []
 inputs = []
+
+
+
 def readFile(s):
-	f = open(s,'w')
+	f = open(s,'r')
 
 	numberOfStates = f.readline()
+	print(numberOfStates)
 	x = f.readline()
 	alphabets = list(x)
 	m = f.readline()
@@ -24,14 +28,18 @@ def readFile(s):
 	startState = m
 	acceptingStates = f.readline().split()
 	l = f.readline()
-	while l
+	while l:
 		inputs.add(m)
 		l = f.readline()
 
 
+if __name__ == '__main__':
+	readFile('dfa1.txt')
+	print("Alphabet is %s \n transition %s \n states are %s: \n inputs: %s \n" %(alphabets,transition,acceptingStates,inputs))  
 
-def main:
-	readFile(sys.argv[0])
+	print(states)
+	print(transition)
+
 
 
 
