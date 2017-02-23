@@ -6,13 +6,14 @@ numberOfStates = 0
 alphabets = []
 states = {} 
 transition = {}
-startState = 0
 acceptingStates = []
 inputs = []
 
 
+global startState
 
 def readFile(s):
+	global startState
 	f = open(s,'r')
 
 	numberOfStates = f.readline()
@@ -23,9 +24,12 @@ def readFile(s):
 	while( "'" in m):
 		a,b,c = m.split("'")
 		b = b.strip()
-		transition[tuple((a,b))] = c
+		c = c.strip(" ")
+		transition[tuple((int(a),int(b)))] = c.strip("\n")
 		m = f.readline()
-	startState = m
+	startState = int(m.strip("\n"))
+	print("here %s",startState)
+
 	acceptingStates = f.readline().split()
 	l = f.readline()
 	while l:
@@ -33,10 +37,11 @@ def readFile(s):
 		print(inputs)
 		l = f.readline()
 
-def DFA(input):
+def DFA(inputs):
 	currentState = startState
-	for val in input:
-		nextState = transition[tuple((currentState, val))]
+
+	for val in inputs:
+		nextState = transition[tuple((int(currentState), int(val)))]
 		currentState = nextState
 		print(currentState)
 	if currentState in acceptingStates:
