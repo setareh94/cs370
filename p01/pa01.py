@@ -1,3 +1,7 @@
+# COMP 370, Spring 2017
+# Program #1, DFA Simulation
+# Co-Authored: Setareh Lotfi and Katie Levy
+
 import sys
 import os
 from collections import defaultdict
@@ -53,5 +57,5 @@ if __name__ == '__main__':
 		DFA(i)
 
 
-
+#empty strings should be accepted only if the accepting state  was same as the current sate
 
