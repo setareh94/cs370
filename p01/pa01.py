@@ -15,6 +15,8 @@ inputs = []
 
 global startState
 
+# Open a file, s, and parse through the file to
+# properly assign global variables for the DFA
 def readFile(s):
 	global startState
 	global acceptingStates
@@ -24,6 +26,11 @@ def readFile(s):
 	print(numberOfStates)
 	x = f.readline()
 	alphabets = list(x)
+
+# Read through all the transitions
+# and add them to the transition dictionary
+# with the state and input as the key mapping to
+# the resulting state
 	m = f.readline()
 	while( "'" in m):
 		a,b,c = m.split("'")
@@ -39,17 +46,22 @@ def readFile(s):
 		inputs.append(l.strip("\n"))
 		l = f.readline()
 
+# Run through the inputs based on the DFA created
+# and output accept if the input is in the language
+# or output reject if the input is not in the language
 def DFA(inputs):
 	currentState = startState
-
-	for val in inputs:
-		nextState = transition[tuple((int(currentState), val))]
-		currentState = nextState
+	if inputs:
+		for val in inputs:
+			nextState = transition[tuple((int(currentState), val))]
+			currentState = nextState
+# TODO: Need to fix for empty string ie. dfa9.txt's 3rd input
 	if currentState in acceptingStates:
 		print("Accept")
-		return
-	print("Reject")
+	else:
+		print("Reject")
 
+# Main function
 if __name__ == '__main__':
 	readFile(sys.argv[1])
 	print("Alphabet is %s \n transition %s \n inputs: %s " %(alphabets,transition,inputs))
