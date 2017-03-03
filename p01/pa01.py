@@ -2,6 +2,7 @@
 # Program #1, DFA Simulation
 # Co-Authored: Setareh Lotfi and Katie Levy
 
+#System library for read and write
 import sys
 import os
 
