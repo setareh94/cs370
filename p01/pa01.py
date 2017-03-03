@@ -4,7 +4,6 @@
 
 import sys
 import os
-from collections import defaultdict
 
 numberOfStates = 0
 alphabets = []
@@ -24,7 +23,6 @@ def readFile(s):
 	f = open(s,'r')
 
 	numberOfStates = f.readline()
-	print(numberOfStates)
 	x = f.readline()
 	alphabets = x.split()
 
@@ -57,7 +55,8 @@ def DFA(inputs):
 			nextState = transition[tuple((int(currentState), val))]
 
 			currentState = int(nextState)
-# TODO: Need to fix for empty string ie. dfa9.txt's 3rd input
+
+#empty strings should be accepted only if the accepting state was same as the current sate
 	if len(inputs) == 0 and currentState in acceptingStates:
 
 		print("Accept")
@@ -70,10 +69,8 @@ def DFA(inputs):
 # Main function
 if __name__ == '__main__':
 	readFile(sys.argv[1])
-	print("Alphabet is %s \n transition %s \n inputs: %s " %(alphabets,transition,inputs))
 	for i in inputs:
 		DFA(i)
 
 
-#empty strings should be accepted only if the accepting state  was same as the current sate
 
