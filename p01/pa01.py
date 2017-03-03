@@ -20,12 +20,13 @@ global startState
 def readFile(s):
 	global startState
 	global acceptingStates
+	global alphabets
 	f = open(s,'r')
 
 	numberOfStates = f.readline()
 	print(numberOfStates)
 	x = f.readline()
-	alphabets = list(x)
+	alphabets = x.split()
 
 # Read through all the transitions
 # and add them to the transition dictionary
@@ -40,7 +41,7 @@ def readFile(s):
 		m = f.readline()
 	startState = int(m.strip("\n"))
 
-	acceptingStates = f.readline().split()
+	acceptingStates = list((map(int, f.readline().split())))
 	l = f.readline()
 	while l:
 		inputs.append(l.strip("\n"))
@@ -51,15 +52,20 @@ def readFile(s):
 # or output reject if the input is not in the language
 def DFA(inputs):
 	currentState = startState
-	if inputs:
+	if (inputs) :
 		for val in inputs:
 			nextState = transition[tuple((int(currentState), val))]
-			currentState = nextState
+
+			currentState = int(nextState)
 # TODO: Need to fix for empty string ie. dfa9.txt's 3rd input
-	if currentState in acceptingStates:
+	if len(inputs) == 0 and currentState in acceptingStates:
+
 		print("Accept")
 	else:
-		print("Reject")
+		if currentState in acceptingStates:
+			print("Accept")
+		else:
+			print("Reject")
 
 # Main function
 if __name__ == '__main__':
