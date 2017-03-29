@@ -1,5 +1,5 @@
 # COMP 370, Spring 2017
-# Program #1, DFA Simulation
+# Program #2, DFA Simulation
 # Co-Authored: Setareh Lotfi and Katie Levy
 
 #System library for read and write
@@ -45,32 +45,3 @@ def readFile(s):
 	while l:
 		inputs.append(l.strip("\n"))
 		l = f.readline()
-
-# Run through the inputs based on the DFA created
-# and output accept if the input is in the language
-# or output reject if the input is not in the language
-def DFA(inputs):
-	currentState = startState
-	if (inputs) :
-		for val in inputs:
-			nextState = transition[tuple((int(currentState), val))]
-
-			currentState = int(nextState)
-
-#empty strings should be accepted only if the accepting state was same as the current sate
-	if len(inputs) == 0 and currentState in acceptingStates:
-		print("Accept")
-	else:
-		if currentState in acceptingStates:
-			print("Accept")
-		else:
-			print("Reject")
-
-# Main function
-if __name__ == '__main__':
-	readFile(sys.argv[1])
-	for i in inputs:
-		DFA(i)
-
-
-
