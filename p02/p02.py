@@ -5,10 +5,11 @@
 #System library for read and write
 import sys
 import os
+from collections import defaultdict
 
 numberOfStates = 0
 alphabets = []
-transition = {}
+transition = defaultdict()
 acceptingStates = []
 inputs = []
 
@@ -36,12 +37,24 @@ def readFile(s):
 		a,b,c = m.split("'")
 		b = b.strip()
 		c = c.strip(" ")
-		transition[tuple((int(a),b))] = c.strip("\n")
+		if tuple((int(a),b)) in transition:
+			transition[tuple((int(a),b))].append(c.strip("\n"))
+		else:
+			transition[tuple((int(a),b))] = list(c.strip("\n"))
 		m = f.readline()
-	startState = int(m.strip("\n"))
+		
+	m = f.readline()
+	startState = m.strip("\n")
 
 	acceptingStates = list((map(int, f.readline().split())))
 	l = f.readline()
 	while l:
 		inputs.append(l.strip("\n"))
 		l = f.readline()
+
+
+# Main function
+if __name__ == '__main__':
+	readFile(sys.argv[1])
+	print(transition)
+	print(startState)
