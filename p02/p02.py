@@ -6,7 +6,7 @@
 import sys
 import os
 from collections import defaultdict
-
+from collections import deque
 numberOfStates = 0
 alphabets = []
 transition = defaultdict()
@@ -51,6 +51,19 @@ def readFile(s):
 	while l:
 		inputs.append(l.strip("\n"))
 		l = f.readline()
+
+def toDFA():
+	queue = deque()
+	if startState not in queue:
+		queue.append(startState)
+	while (len(queue)!=0):
+		currentState = queue.popleft()
+		nextStates = list()
+		for a in alphabets:
+			if tuple(currentState, a) is in transition:
+				for x in transition[(tuple(currentState, a))]:
+					nextStates.append(x)
+
 
 
 # Main function
