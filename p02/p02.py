@@ -27,8 +27,7 @@ def readFile(s):
 	numberOfStates = f.readline()
 	x = f.readline()
 	print(x)
-	alphabets = (i for i in str(x).split())
-	print(alphabets)
+	alphabets = list((x.strip("\n")))
 
 # Read through all the transitions
 # and add them to the transition dictionary
