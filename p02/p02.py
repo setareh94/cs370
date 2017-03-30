@@ -26,7 +26,9 @@ def readFile(s):
 
 	numberOfStates = f.readline()
 	x = f.readline()
-	alphabets = x.split()
+	print(x)
+	alphabets = (i for i in str(x).split())
+	print(alphabets)
 
 # Read through all the transitions
 # and add them to the transition dictionary
@@ -53,16 +55,28 @@ def readFile(s):
 		l = f.readline()
 
 def toDFA():
+	DFATransitions = defaultdict()
 	queue = deque()
-	if startState not in queue:
-		queue.append(startState)
+	start = list(startState)
+	if start not in queue:
+		queue.append(start)
 	while (len(queue)!=0):
 		currentState = queue.popleft()
 		nextStates = list()
-		for a in alphabets:
-			if tuple(currentState, a) is in transition:
-				for x in transition[(tuple(currentState, a))]:
-					nextStates.append(x)
+		print(alphabets)
+		for a in alphabets.split():
+			for eachState in currentState:
+				v = tuple((currentState, a))
+				print(v)
+				if v in transition:
+					for x in transition[(tuple(currentState, a))]:
+						nextStates.append(x)
+			DFATransitions[tuple(currentState, a)] = nextStates
+			if nextStates not in queue:
+				queue.append(nextStates)
+	print(DFATransitions)			
+
+
 
 
 
@@ -71,3 +85,4 @@ if __name__ == '__main__':
 	readFile(sys.argv[1])
 	print(transition)
 	print(startState)
+	toDFA()
