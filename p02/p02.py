@@ -63,7 +63,7 @@ def toDFA():
 		currentState = queue.popleft()
 		nextStates = list()
 		print(alphabets)
-		for a in alphabets.split():
+		for a in alphabets:
 			for eachState in currentState:
 				v = tuple((currentState, a))
 				print(v)
