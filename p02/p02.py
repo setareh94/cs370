@@ -80,6 +80,34 @@ def toDFA():
 	print(DFATransitions)			
 
 
+	lookup = {}
+	i = 1
+	newDFATransition = {}
+	for key, inp in DFATransitions:
+		print(lookup)
+		print(key)
+		print(inp)
+		value = DFATransitions[key, inp]
+		print(value)
+		if key in lookup:
+			print("inside if")
+			print(key)
+			newKey = tuple((lookup[key], inp))
+		else:
+			lookup[key] = i
+			newKey = tuple((i, inp))
+			i = i +1 
+		if tuple(value,) in lookup:
+			newValue = lookup[tuple(value,)]
+		else:
+			lookup[tuple(value,)] = i
+			newValue = i
+			i = i +1
+		newDFATransition[newKey] = newValue
+		print("printing new DFATRAns")
+		print(newDFATransition)
+	newStartState = lookup[tuple(startState,)]
+	print(newStartState)
 
 
 # Main function
