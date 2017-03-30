@@ -56,23 +56,44 @@ def readFile(s):
 def toDFA():
 	DFATransitions = defaultdict()
 	queue = deque()
+	print("length is %d" % len(queue))
+	print(queue)
 	start = list(startState)
 	if start not in queue:
 		queue.append(start)
-	while (len(queue)!=0):
+	print(queue)
+	while (queue):
 		currentState = queue.popleft()
+		print(queue)
 		nextStates = list()
-		print(alphabets)
 		for a in alphabets:
+			print("alphavet is")
+			print(a)
+			nextStates = list()
 			for eachState in currentState:
-				v = tuple((currentState, a))
+				v = tuple((int(eachState), a))
+				print("qeue is")
+				print(queue)
+				print("dsds")
 				print(v)
+				print(transition)
 				if v in transition:
-					for x in transition[(tuple(currentState, a))]:
-						nextStates.append(x)
-			DFATransitions[tuple(currentState, a)] = nextStates
-			if nextStates not in queue:
-				queue.append(nextStates)
+					for x in transition[v]:
+						print("what is in next state")
+						print(x)
+						print(nextStates)
+						if x not in nextStates:
+							nextStates.append(x)
+			DFATransitions[v] = nextStates
+			print(DFATransitions)			
+			print("before if")
+			print(sorted(nextStates))
+			nextStates = sorted(nextStates)
+
+			if (sorted(nextStates) not in queue) and sorted(nextStates):
+				queue.append(sorted(nextStates))
+				print("after append")
+				print(queue)
 	print(DFATransitions)			
 
 
