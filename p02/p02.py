@@ -72,6 +72,22 @@ def toDFA():
 					for x in transition[v]:
 						if x not in nextStates:
 							nextStates.append(x)
+			checkForE = deque()
+			checkForE.append(nextStates + currentState)
+			checkedForE = list()
+			while (checkForE):
+				curState = checkForE.popleft()
+				for eachState in curState:
+					if eachState not in sorted(checkedForE):
+						checkedForE.append(eachState)
+						v = tuple((int(eachState), "e"))
+						if v in transition:
+							for x in transition[v]:
+								if x not in nextStates:
+									nextStates.append(x)
+									if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
+										checkForE.append(x)
+
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 			nextStates = sorted(nextStates)
 
