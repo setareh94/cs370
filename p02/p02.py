@@ -155,8 +155,11 @@ def changeStateNames(DFATransitions):
 	newStartState = lookup[tuple(startStateAfterE,)]
 	print(newStartState)
 	for keys in lookup:
+		print("printing keys")
+		print(keys)
 		for s in acceptingStates:
-			if s in keys:
+			if (str(s) in keys):
+				print("hello")
 				newAcceptStates.append(lookup[keys])
 	print("new accepting states")
 	print(newAcceptStates)
@@ -189,17 +192,16 @@ def DFAChecking():
 
 #empty strings should be accepted only if the accepting state was same as the current sate
 			if len(val) == 0 and currentState in newAcceptStates:
-				print("accepting")
-				print(val)
+				# print("accepting")
+				# print(val)
 				print("Accept")
 			else:
 				if currentState in newAcceptStates:
-					print("accepting")
-					print(val)
+					# print("accepting")
+					# print(val)
 					print("Accept")
 				else:
-					print("rejecting")
-					print(val)
+					# print(val)
 					print("Reject")
 
 # Main function
