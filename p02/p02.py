@@ -184,19 +184,25 @@ def DFAChecking():
 		print("printing inputs")
 		print(inputs)
 		for val in inputs:
-			if(len(val) != 0):
-				for i in val:
-					nextState = newDFATransition[tuple((int(currentState), i))]
-					currentState = int(nextState)
-
-
-#empty strings should be accepted only if the accepting state was same as the current sate
-			if len(val) == 0 and currentState in newAcceptStates:
+			currentState = newStartState
+			#empty strings should be accepted only if the accepting state was same as the current sate
+			if len(val) == 0:
+				if currentState in newAcceptStates:
 				# print("accepting")
 				# print(val)
-				print("Accept")
+					print("Accept")
+				else:
+					print("Reject")
 			else:
-				if currentState in newAcceptStates:
+				for i in val:
+					reject = False
+					try:
+						nextState = newDFATransition[tuple((int(currentState), i))]
+						currentState = int(nextState)
+					except KeyError:
+						reject = True
+
+				if currentState in newAcceptStates and not reject:
 					# print("accepting")
 					# print(val)
 					print("Accept")
