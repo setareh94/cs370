@@ -14,6 +14,9 @@ acceptingStates = []
 inputs = []
 startStateAfterE = None
 inputs = []
+newDFATransition = {}
+newStartState = None
+newAcceptStates = []
 
 
 global startState
@@ -125,7 +128,9 @@ def changeStateNames(DFATransitions):
 
 	lookup = {}
 	i = 1
-	newDFATransition = {}
+	global newDFATransition
+	global newStartState
+	global newAcceptStates
 	for key, inp in DFATransitions:
 		print("Printing lookup %s \n, key %s \n, input %s \n" %(lookup,key,inp))
 		value = DFATransitions[key, inp]
@@ -149,9 +154,17 @@ def changeStateNames(DFATransitions):
 		print(newDFATransition)
 	newStartState = lookup[tuple(startStateAfterE,)]
 	print(newStartState)
+	for keys in lookup:
+		for s in acceptingStates:
+			if s in keys:
+				newAcceptStates.append(lookup[keys])
+	print("new accepting states")
+	print(newAcceptStates)
+
 
 
 def readFileForInput(s):
+	f = open(s, 'r')
 	l = f.readline()
 	while l:
 		inputs.append(l.strip("\n"))
@@ -160,25 +173,38 @@ def readFileForInput(s):
 # Run through the inputs based on the DFA created
 # and output accept if the input is in the language
 # or output reject if the input is not in the language
-def DFAChecking(inputs):
-	currentState = startState
+def DFAChecking():
+	currentState = newStartState
+	print("accepting states")
+	print(acceptingStates)
 	if (inputs) :
+		print("printing inputs")
+		print(inputs)
 		for val in inputs:
-			nextState = transition[tuple((int(currentState), val))]
+			if(len(val) != 0):
+				for i in val:
+					nextState = newDFATransition[tuple((int(currentState), i))]
+					currentState = int(nextState)
 
-			currentState = int(nextState)
 
 #empty strings should be accepted only if the accepting state was same as the current sate
-	if len(inputs) == 0 and currentState in acceptingStates:
-		print("Accept")
-	else:
-		if currentState in acceptingStates:
-			print("Accept")
-		else:
-			print("Reject")
+			if len(val) == 0 and currentState in newAcceptStates:
+				print("accepting")
+				print(val)
+				print("Accept")
+			else:
+				if currentState in newAcceptStates:
+					print("accepting")
+					print(val)
+					print("Accept")
+				else:
+					print("rejecting")
+					print(val)
+					print("Reject")
 
 # Main function
 if __name__ == '__main__':
 	readFile(sys.argv[1])
 	readFileForInput(sys.argv[2])	
 	toDFA()
+	DFAChecking()
