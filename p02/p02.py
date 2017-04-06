@@ -12,6 +12,7 @@ alphabets = []
 transition = defaultdict()
 acceptingStates = []
 inputs = []
+startStateAfterE = None
 
 
 global startState
@@ -56,7 +57,8 @@ def toDFA():
 	DFATransitions = defaultdict()
 	newStatesMarked = list()
 	queue = deque()
-	start = list(startState)
+	findNewStartState()
+	start = list(startStateAfterE)
 	if start not in queue:
 		queue.append(start)
 	i = 0
@@ -87,22 +89,44 @@ def toDFA():
 									nextStates.append(x)
 									if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
 										checkForE.append(x)
+			nextStates = sorted(nextStates)
 
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
-			nextStates = sorted(nextStates)
 
 			if (sorted(nextStates) not in queue) and (sorted(nextStates) not in newStatesMarked) and sorted(nextStates):
 				queue.append(sorted(nextStates))
-	print(DFATransitions)			
+	print(DFATransitions)
+	
+	changeStateNames(DFATransitions)
 
+def findNewStartState():
+	global startStateAfterE
+	checkForE = deque()
+	checkForE.append(startState)
+	checkedForE = list()
+	nextStates = list(startState)
+	while (checkForE):
+		curState = checkForE.popleft()
+		for eachState in curState:
+			if eachState not in sorted(checkedForE):
+				checkedForE.append(eachState)
+				v = tuple((int(eachState), "e"))
+				if v in transition:
+					for x in transition[v]:
+						if x not in nextStates:
+							nextStates.append(x)
+							if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
+								checkForE.append(x)
+	startStateAfterE = sorted(nextStates)
+
+
+def changeStateNames(DFATransitions):
 
 	lookup = {}
 	i = 1
 	newDFATransition = {}
 	for key, inp in DFATransitions:
-		print(lookup)
-		print(key)
-		print(inp)
+		print("Printing lookup %s \n, key %s \n, input %s \n" %(lookup,key,inp))
 		value = DFATransitions[key, inp]
 		print(value)
 		if key in lookup:
@@ -111,7 +135,7 @@ def toDFA():
 			newKey = tuple((lookup[key], inp))
 		else:
 			lookup[key] = i
-			newKey = tuple((i, inp))
+			newKey = (tuple((i, inp)))
 			i = i +1 
 		if tuple(value,) in lookup:
 			newValue = lookup[tuple(value,)]
@@ -122,7 +146,7 @@ def toDFA():
 		newDFATransition[newKey] = newValue
 		print("printing new DFATRAns")
 		print(newDFATransition)
-	newStartState = lookup[tuple(startState,)]
+	newStartState = lookup[tuple(startStateAfterE,)]
 	print(newStartState)
 
 
