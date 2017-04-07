@@ -45,8 +45,10 @@ def readFile(s):
 		if tuple((int(a),b)) in transition:
 			transition[tuple((int(a),b))].append(c.strip("\n"))
 		else:
-			transition[tuple((int(a),b))] = list(c.strip("\n"))
+			transition[tuple((int(a),b))] = [c.strip("\n")]
+
 		m = f.readline()
+
 		
 	m = f.readline()
 	startState = m.strip("\n")
@@ -56,8 +58,10 @@ def readFile(s):
 	while l:
 		inputs.append(l.strip("\n"))
 		l = f.readline()
+	print("alph is %s",alphabets)
 
 def toDFA():
+	print("Transtion is %s" % transition)
 	DFATransitions = defaultdict()
 	newStatesMarked = list()
 	queue = deque()
@@ -65,9 +69,10 @@ def toDFA():
 	start = list(startStateAfterE)
 	if start not in queue:
 		queue.append(start)
-	i = 0
 	while (queue):
 		currentState = queue.popleft()
+		print("After while Current state is %s",currentState)
+
 		newStatesMarked.append(currentState)
 		nextStates = list()
 		for a in alphabets:
@@ -93,12 +98,14 @@ def toDFA():
 									nextStates.append(x)
 									if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
 										checkForE.append(x)
-			nextStates = sorted(nextStates)
 
+			nextStates = sorted(nextStates)
+			print("Current state is %s",currentState)
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 
 			if (sorted(nextStates) not in queue) and (sorted(nextStates) not in newStatesMarked) and sorted(nextStates):
 				queue.append(sorted(nextStates))
+	print("Printing DFA Transitions")
 	print(DFATransitions)
 	
 	changeStateNames(DFATransitions)
@@ -132,7 +139,7 @@ def changeStateNames(DFATransitions):
 	global newStartState
 	global newAcceptStates
 	for key, inp in DFATransitions:
-		print("Printing lookup %s \n, key %s \n, input %s \n" %(lookup,key,inp))
+		print("\n Printing lookup\n %s \n key %s \n, \n input %s \n" %(lookup,key,inp))
 		value = DFATransitions[key, inp]
 		print(value)
 		if key in lookup:
@@ -150,7 +157,7 @@ def changeStateNames(DFATransitions):
 			newValue = i
 			i = i +1
 		newDFATransition[newKey] = newValue
-		print("printing new DFATRAns")
+		print("printing new DFA Transition")
 		print(newDFATransition)
 	newStartState = lookup[tuple(startStateAfterE,)]
 	print(newStartState)
