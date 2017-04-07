@@ -16,8 +16,7 @@ startStateAfterE = None
 inputs = []
 newDFATransition = {}
 newStartState = None
-newAcceptStates = []
-
+newAcceptStates = set()
 
 global startState
 
@@ -46,7 +45,6 @@ def readFile(s):
 			transition[tuple((int(a),b))].append(c.strip("\n"))
 		else:
 			transition[tuple((int(a),b))] = [c.strip("\n")]
-
 		m = f.readline()
 
 		
@@ -58,10 +56,8 @@ def readFile(s):
 	while l:
 		inputs.append(l.strip("\n"))
 		l = f.readline()
-	print("alph is %s",alphabets)
-
 def toDFA():
-	print("Transtion is %s" % transition)
+	print("Transtion is %s \n" % transition)
 	DFATransitions = defaultdict()
 	newStatesMarked = list()
 	queue = deque()
@@ -71,8 +67,6 @@ def toDFA():
 		queue.append(start)
 	while (queue):
 		currentState = queue.popleft()
-		print("After while Current state is %s",currentState)
-
 		newStatesMarked.append(currentState)
 		nextStates = list()
 		for a in alphabets:
@@ -100,7 +94,6 @@ def toDFA():
 										checkForE.append(x)
 
 			nextStates = sorted(nextStates)
-			print("Current state is %s",currentState)
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 
 			if (sorted(nextStates) not in queue) and (sorted(nextStates) not in newStatesMarked) and sorted(nextStates):
@@ -167,7 +160,7 @@ def changeStateNames(DFATransitions):
 		for s in acceptingStates:
 			if (str(s) in keys):
 				print("hello")
-				newAcceptStates.append(lookup[keys])
+				newAcceptStates.add(lookup[keys])
 	print("new accepting states")
 	print(newAcceptStates)
 
