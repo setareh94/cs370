@@ -5,8 +5,10 @@
 #System library for read and write
 import sys
 import os
+#Python library for dictionary and queue
 from collections import defaultdict
 from collections import deque
+
 numberOfStates = 0
 alphabets = []
 transition = defaultdict()
@@ -21,8 +23,11 @@ newAcceptStates = set()
 global startState
 
 # Open a file, s, and parse through the file to
-# properly assign global variables for the DFA
+# properly assign global variables for the NFA to 
+# DFA conversion
+
 def readFile(s):
+
 	global startState
 	global acceptingStates
 	global alphabets
@@ -32,10 +37,10 @@ def readFile(s):
 	x = f.readline()
 	alphabets = list((x.strip("\n")))
 
-# Read through all the transitions
-# and add them to the transition dictionary
-# with the state and input as the key mapping to
-# the resulting state
+	# Read through all the transitions
+	# and add them to the transition dictionary
+	# with the state and input as the key mapping to
+	# the resulting state
 	m = f.readline()
 	while( "'" in m):
 		a,b,c = m.split("'")
@@ -49,14 +54,13 @@ def readFile(s):
 
 		
 	m = f.readline()
+	#Store StartState from the file
 	startState = m.strip("\n")
 
+	#Store acceptionStates
 	acceptingStates = list((map(int, f.readline().split())))
-	l = f.readline()
-	while l:
-		inputs.append(l.strip("\n"))
-		l = f.readline()
-def toDFA():
+
+def conversionToDFA():
 	print("Transtion is %s \n" % transition)
 	DFATransitions = defaultdict()
 	newStatesMarked = list()
@@ -155,28 +159,25 @@ def changeStateNames(DFATransitions):
 	newStartState = lookup[tuple(startStateAfterE,)]
 	print(newStartState)
 	for keys in lookup:
-		print("printing keys")
-		print(keys)
 		for s in acceptingStates:
 			if (str(s) in keys):
-				print("hello")
 				newAcceptStates.add(lookup[keys])
 	print("new accepting states")
 	print(newAcceptStates)
 
 
-
-def readFileForInput(s):
-	f = open(s, 'r')
-	l = f.readline()
-	while l:
-		inputs.append(l.strip("\n"))
-		l = f.readline()
+#Read the DFAinput files and store them for output
+def readFileForDFAInput(s):
+	file = open(s, 'r')
+	nextLine = file.readline()
+	while nextLine:
+		inputs.append(nextLine.strip("\n"))
+		nextLine = file.readline()
 
 # Run through the inputs based on the DFA created
 # and output accept if the input is in the language
 # or output reject if the input is not in the language
-def DFAChecking():
+def checkDFAInput():
 	currentState = newStartState
 	print("accepting states")
 	print(acceptingStates)
@@ -188,8 +189,6 @@ def DFAChecking():
 			#empty strings should be accepted only if the accepting state was same as the current sate
 			if len(val) == 0:
 				if currentState in newAcceptStates:
-				# print("accepting")
-				# print(val)
 					print("Accept")
 				else:
 					print("Reject")
@@ -203,16 +202,13 @@ def DFAChecking():
 						reject = True
 
 				if currentState in newAcceptStates and not reject:
-					# print("accepting")
-					# print(val)
 					print("Accept")
 				else:
-					# print(val)
 					print("Reject")
 
 # Main function
 if __name__ == '__main__':
 	readFile(sys.argv[1])
-	readFileForInput(sys.argv[2])	
-	toDFA()
-	DFAChecking()
+	readFileForDFAInput(sys.argv[2])	
+	conversionToDFA()
+	checkDFAInput()
