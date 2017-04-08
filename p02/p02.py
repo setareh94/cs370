@@ -60,6 +60,9 @@ def readFile(s):
 	#Store acceptionStates
 	acceptingStates = list((map(int, f.readline().split())))
 
+# Convert the NFA to a DFA with a
+# new transition function and new states
+# keeping track of what states the NFA would be at
 def conversionToDFA():
 	print("Transtion is %s \n" % transition)
 	DFATransitions = defaultdict()
@@ -81,6 +84,8 @@ def conversionToDFA():
 					for x in transition[v]:
 						if x not in nextStates:
 							nextStates.append(x)
+			# Check what state the next states could be in 
+			# with the episilon transitions
 			checkForE = deque()
 			checkForE.append(nextStates + currentState)
 			checkedForE = list()
@@ -97,6 +102,7 @@ def conversionToDFA():
 									if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
 										checkForE.append(x)
 
+			# Add to the new transition function
 			nextStates = sorted(nextStates)
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 
@@ -104,9 +110,9 @@ def conversionToDFA():
 				queue.append(sorted(nextStates))
 	print("Printing DFA Transitions")
 	print(DFATransitions)
-	
 	changeStateNames(DFATransitions)
 
+# Find the new start state compensating for epsilon transitions
 def findNewStartState():
 	global startStateAfterE
 	checkForE = deque()
@@ -127,14 +133,14 @@ def findNewStartState():
 								checkForE.append(x)
 	startStateAfterE = sorted(nextStates)
 
-
+# Convert DFA states from the form of set of states to just one integer
 def changeStateNames(DFATransitions):
-
 	lookup = {}
 	i = 1
 	global newDFATransition
 	global newStartState
 	global newAcceptStates
+	# Go through every transition states
 	for key, inp in DFATransitions:
 		print("\n Printing lookup\n %s \n key %s \n, \n input %s \n" %(lookup,key,inp))
 		value = DFATransitions[key, inp]
