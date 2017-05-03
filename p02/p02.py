@@ -21,7 +21,7 @@ startStateAfterE = None # Start state after epsilon transition
 newDFATransition = {}   # Map for DFA transition
 newStartState = None    # new start state for DFA
 newAcceptStates = set() #set of accepting states
-
+newStatesMarked = list()
 
 """
 Function: readFile
@@ -78,7 +78,7 @@ Description:
 """
 def conversionToDFA():
 	DFATransitions = defaultdict()
-	newStatesMarked = list()
+	global newStatesMarked
 	queue = deque()
 	findNewStartState()
 	start = list(startStateAfterE)
@@ -217,7 +217,7 @@ def changeStateNames(DFATransitions):
 
 def writeDFAtoFile(filename):
 	with open(filename, 'w') as f:
-		f.write(str(numberOfStates) + '\n')
+		f.write(str(len(newStatesMarked)) + '\n')
 		f.write("".join(i for i in alphabets) + '\n')
 		result = "\n".join(str(key[0]) + " '" + key[1] + "' " + str(value) 
 							for key, value in newDFATransition.items())
