@@ -82,7 +82,6 @@ def conversionToDFA():
 	queue = deque()
 	findNewStartState()
 	start = list(startStateAfterE)
-
 	if start not in queue:
 		queue.append(start)
 	while (queue):
@@ -91,22 +90,24 @@ def conversionToDFA():
 		nextStates = list()
 		for a in alphabets:
 			nextStates = list()
-			for eachState in currentState:
-				v = tuple((int(eachState), a))
-				if v in transition:
-					for x in transition[v]:
-						if x not in nextStates:
-							nextStates.append(x)
-			# Check what state the next states could be in 
-			# with the episilon transitions
-			epsilonTransition(nextStates, currentState)
-			# Add to the new transition function
-			nextStates = sorted(nextStates)
+			if currentState:
+				for eachState in currentState:
+					v = tuple((int(eachState), a))
+					if v in transition:
+						for x in transition[v]:
+							if x not in nextStates:
+								nextStates.append(x)
+				# Check what state the next states could be in 
+				# with the episilon transitions
+				epsilonTransition(nextStates, currentState)
+				# Add to the new transition function
+				nextStates = sorted(nextStates)
+			else:
+				nextStates = currentState	
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 
 			if ((sorted(nextStates) not in queue) 
-				and (sorted(nextStates) not in newStatesMarked)
-				and sorted(nextStates)):
+				and (sorted(nextStates) not in newStatesMarked)):
 				queue.append(sorted(nextStates))
 	#Covert from set of one states to set of integers
 	changeStateNames(DFATransitions)
@@ -121,7 +122,7 @@ Description:
 """
 def epsilonTransition(nextStates, currentState):
 	checkForE = deque()
-	checkForE.append(nextStates + currentState)
+	checkForE.append(nextStates)
 	checkedForE = list()
 
 	while (checkForE):
@@ -157,6 +158,7 @@ def findNewStartState():
 		for eachState in curState:
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
+				# search for any epsilon transitions
 				v = tuple((int(eachState), "e"))
 				if v in transition:
 					for x in transition[v]:
@@ -185,12 +187,14 @@ def changeStateNames(DFATransitions):
 	# Go through every transition states
 	for key, inp in DFATransitions:
 		value = DFATransitions[key, inp]
+		# key is a current state in the NFA
 		if key in lookup:
 			newKey = tuple((lookup[key], inp))
 		else:
 			lookup[key] = i
 			newKey = (tuple((i, inp)))
 			i = i +1 
+		# value is a next state in the NFA
 		if tuple(value,) in lookup:
 			newValue = lookup[tuple(value,)]
 		else:
@@ -201,10 +205,13 @@ def changeStateNames(DFATransitions):
 
 	newStartState = lookup[tuple(startStateAfterE,)]
 
+	# lookup new accept states
 	for keys in lookup:
 		for s in acceptingStates:
 			if (str(s) in keys):
 				newAcceptStates.add(lookup[keys])
+
+
 
 
 """
