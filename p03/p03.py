@@ -38,12 +38,16 @@ def readFile(fileName):
 		alphabets = list((x.strip("\n")))
 		print(alphabets)
 
-		# m = f.readline()
+		# Read in the Regular Expression
+		m = f.readline()
+		m = m.strip(" ")
+		# Create syntax tree
+		setUpTheNodesInTree(m.strip("\n"))
 		m = f.readline()
 
+		# Read in the inputs
 		while m:
 			regularExpressionList.append(m.strip("\n"))
-			setUpTheNodesInTree(m.strip("\n"))
 			m = f.readline()
 
 		print(regularExpressionList)
@@ -51,28 +55,37 @@ def readFile(fileName):
 #Setting up the tree
 
 processingActions = {
-	'e': epsilon,
-	'N': emptySet,
-	'|': union,
-	'*': star,
+	'e': 'epsilon',
+	'N': 'emptySet',
+	'|': 'union',
+	'*': 'star',
 }
+class Node:
+	def __init__(self, value, left=None, right=None):
+		self.value = value
+		self.left = left
+		self.right = right
+	def __str__(self):
+		return str(self.value)
 
 
 def setUpTheNodesInTree(expression):
 	operatorStack = []
 	operandsStack = []
+	print(expression)
 	for i in expression:
 		if i == '(':
 			operandsStack.append(i)
-		else if i == ')':
+		elif(i == ')'):
 			operandsStack.remove()
 			while (i != '(' and len(operatorStack)>0):
 			# we need to pass in whatever the expression is here
 				operandsStack.append() #TO-DO
-		else if(i in processingActions):
+		elif(i in processingActions):
 			while(len(operatorStack)>0):
 				op = operatorStack.remove()
 				#we need to check if it is not '(' and the precedence of the character
+				# precedence is star highest, then concatenation, then union
 
 
 
@@ -81,13 +94,13 @@ def epsilon():
 	if ch == '':
 		menu_actions['main_menu']()
 def emptySet():
-
+	print('empty')
 def union():
-
+	print("union")
 def star():
-
+	print('star')
 def processingTree():
-
+	print("processingTree")
 
 
 if __name__ == '__main__':
