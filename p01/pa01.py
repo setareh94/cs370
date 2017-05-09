@@ -11,6 +11,7 @@ alphabets = []
 transition = {}
 acceptingStates = []
 inputs = []
+regularExpressionList = []
 
 
 global startState
@@ -32,19 +33,11 @@ def readFile(s):
 # with the state and input as the key mapping to
 # the resulting state
 	m = f.readline()
-	while( "'" in m):
-		a,b,c = m.split("'")
-		b = b.strip()
-		c = c.strip(" ")
-		transition[tuple((int(a),b))] = c.strip("\n")
-		m = f.readline()
-	startState = int(m.strip("\n"))
 
-	acceptingStates = list((map(int, f.readline().split())))
-	l = f.readline()
-	while l:
-		inputs.append(l.strip("\n"))
-		l = f.readline()
+	while m:
+		regularExpressionList.append(m.strip("\n"))
+		m = f.readline()
+	print(regularExpressionList)
 
 # Run through the inputs based on the DFA created
 # and output accept if the input is in the language
