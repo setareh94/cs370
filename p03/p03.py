@@ -52,14 +52,17 @@ def readFile(fileName):
 
 		print(regularExpressionList)
 
-#Setting up the tree
+# Setting up the tree
 
 processingActions = {
 	'e': 'epsilon',
 	'N': 'emptySet',
 	'|': 'union',
 	'*': 'star',
+	'concat' : 'concat',
 }
+# Nodes to represent tree nodes in the syntax tree
+# Note: * operator only has a left child
 class Node:
 	def __init__(self, value, left=None, right=None):
 		self.value = value
@@ -68,13 +71,14 @@ class Node:
 	def __str__(self):
 		return str(self.value)
 
+# Function to print the values in the syntax tree
 def print_tree(node):
 	if node == None: return
 	print(node.value)
 	print_tree(node.left)
 	print_tree(node.right)
 
-
+# Parse the regular expression to create a syntax tree
 def setUpTheNodesInTree(expression):
 	operatorStack = []
 	operandsStack = []
@@ -85,13 +89,14 @@ def setUpTheNodesInTree(expression):
 	# TODO: add epsilons
 
 	for i in expression:
-		print('operands stack')
+		"""		print('operands stack')
 		for a in operandsStack:
 			print(a)
 		print('operator stack')
 		print(operatorStack)
 		print('processing i')
 		print(i)
+		"""
 		# Check if symbol from the alphabet
 		if(i in alphabets):
 			x = Node(i)
@@ -137,18 +142,25 @@ def setUpTheNodesInTree(expression):
 
 
 
-
 # Creates a new syntax tree from operandsStack depending on operation
 # and adds it back onto the operands stack
 def createNewSyntaxTree(op, operandsStack, operatorStack):
 	# Create syntax tree node from op
-	print('creating new syntax tree for')
+
+	"""	print('creating new syntax tree for')
 	print(op)
+	"""
 	if(op == '*'):
+		if(len(operandsStack) == 0):
+			print("ERROR with expression")
 		left = operandsStack.pop()
 		x = Node(op, left)
 	else:
+		if(len(operandsStack) == 0):
+			print("ERROR with expression")
 		right = operandsStack.pop()
+		if(len(operandsStack) == 0):
+			print("ERROR with expression")
 		left = operandsStack.pop()
 		x = Node(op, left, right)
 	# push new syntax tree onto operands stack
