@@ -74,19 +74,58 @@ def setUpTheNodesInTree(expression):
 	operandsStack = []
 	print(expression)
 	for i in expression:
-		if i == '(':
-			operandsStack.append(i)
+		# Check if symbol from the alphabet
+		if(i in alphabets):
+			x = Node(i)
+			operandsStack.append(x)
+		elif i == '(':
+			operatorStack.append(i)
 		elif(i == ')'):
-			operandsStack.remove()
-			while (i != '(' and len(operatorStack)>0):
-			# we need to pass in whatever the expression is here
-				operandsStack.append() #TO-DO
+			# pop operators off stack until ( is popped off
+			v = operandsStack.remove()
+			while (v != '(' and len(operatorStack) > 0):
+				# create new syntax tree and add it to operands stack
+				createNewSyntaxTree(v, operandsStack, operatorStack)
+				v = operandsStack.remove()
+		# Check if an operator
 		elif(i in processingActions):
-			while(len(operatorStack)>0):
+			if(len(operatorStack) > 0):
 				op = operatorStack.remove()
-				#we need to check if it is not '(' and the precedence of the character
+				# check if op has a greater than or equal precedence to operator just scanned
 				# precedence is star highest, then concatenation, then union
+				if((op == '*') | (op == 'concat' && i != '*') | (op == '|' && i == '|')):
+					# op >= i
+					# create new syntax tree and add it to operands stack
+					createNewSyntaxTree(op, operandsStack, operatorStack)
+					# push operand just scanned onto stack
+					operatorStack.append(i)
+				else:
+					# op < i
+					# push op back onto the operator stack and i
+					operatorStack.append(op)
+					operatorStack.append(i)
+			else:
+				# operator stack is empty
+				operatorStack.append(i)
+	# There are no more characters to scan
+	# Empty the operator stack
+	while(len(operatorStack) > 0):
 
+
+
+# Creates a new syntax tree from operandsStack depending on operation
+# and adds it back onto the operands stack
+def createNewSyntaxTree(op, operandsStack, operatorStack):
+	# Create syntax tree node from op
+	if(op == '*'):
+		left = operandsStack.remove()
+		x = Node(op, left)
+	else:
+		right = operandsStack.remove()
+		left = operandsStack.remove()
+		x = Node(op, left, right)
+	# push new syntax tree onto operands stack
+	operandsStack.append(x)
 
 
 
