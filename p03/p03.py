@@ -68,12 +68,30 @@ class Node:
 	def __str__(self):
 		return str(self.value)
 
+def print_tree(node):
+	if node == None: return
+	print(node.value)
+	print_tree(node.left)
+	print_tree(node.right)
+
 
 def setUpTheNodesInTree(expression):
 	operatorStack = []
 	operandsStack = []
 	print(expression)
+	
+	# TODO: error checking for invalid expression
+	# TODO: add implied concats
+	# TODO: add epsilons
+
 	for i in expression:
+		print('operands stack')
+		for a in operandsStack:
+			print(a)
+		print('operator stack')
+		print(operatorStack)
+		print('processing i')
+		print(i)
 		# Check if symbol from the alphabet
 		if(i in alphabets):
 			x = Node(i)
@@ -82,18 +100,18 @@ def setUpTheNodesInTree(expression):
 			operatorStack.append(i)
 		elif(i == ')'):
 			# pop operators off stack until ( is popped off
-			v = operandsStack.remove()
+			v = operandsStack.pop()
 			while (v != '(' and len(operatorStack) > 0):
 				# create new syntax tree and add it to operands stack
 				createNewSyntaxTree(v, operandsStack, operatorStack)
-				v = operandsStack.remove()
+				v = operandsStack.pop()
 		# Check if an operator
 		elif(i in processingActions):
 			if(len(operatorStack) > 0):
-				op = operatorStack.remove()
+				op = operatorStack.pop()
 				# check if op has a greater than or equal precedence to operator just scanned
 				# precedence is star highest, then concatenation, then union
-				if((op == '*') | (op == 'concat' && i != '*') | (op == '|' && i == '|')):
+				if((op == '*') | (op == 'concat' and i != '*') | (op == '|' and i == '|')):
 					# op >= i
 					# create new syntax tree and add it to operands stack
 					createNewSyntaxTree(op, operandsStack, operatorStack)
@@ -108,8 +126,15 @@ def setUpTheNodesInTree(expression):
 				# operator stack is empty
 				operatorStack.append(i)
 	# There are no more characters to scan
-	# Empty the operator stack
+	# Empty the operator stack and create new syntax tree for each operator
 	while(len(operatorStack) > 0):
+		op = operatorStack.pop()
+		createNewSyntaxTree(op, operandsStack, operatorStack)
+	# Pop the root of the syntax tree off the operand stack
+	root = operandsStack.pop()
+	print("printing syntax tree")
+	print_tree(root)
+
 
 
 
@@ -117,12 +142,14 @@ def setUpTheNodesInTree(expression):
 # and adds it back onto the operands stack
 def createNewSyntaxTree(op, operandsStack, operatorStack):
 	# Create syntax tree node from op
+	print('creating new syntax tree for')
+	print(op)
 	if(op == '*'):
-		left = operandsStack.remove()
+		left = operandsStack.pop()
 		x = Node(op, left)
 	else:
-		right = operandsStack.remove()
-		left = operandsStack.remove()
+		right = operandsStack.pop()
+		left = operandsStack.pop()
 		x = Node(op, left, right)
 	# push new syntax tree onto operands stack
 	operandsStack.append(x)
