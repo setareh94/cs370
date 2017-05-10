@@ -17,6 +17,7 @@ newStartState = None    # new start state for DFA
 newAcceptStates = set() #set of accepting states
 newStatesMarked = list()
 stringsList = []
+root = None
 """
 Function: readFile
 Arguments: fileName
@@ -80,6 +81,7 @@ def print_tree(node):
 
 # Parse the regular expression to create a syntax tree
 def setUpTheNodesInTree(expression):
+	global root
 	operatorStack = []
 	operandsStack = []
 	print(expression)
@@ -167,6 +169,16 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 	# push new syntax tree onto operands stack
 	operandsStack.append(x)
 
+def syntaxTreeToNFA(Node val):
+	if val.value == alphabets:
+		transition[tuple(states, val.value)] = states + 1
+
+
+	if val.left:
+		syntaxTreeToNFA(val.left)
+	if val.right:
+		syntaxTreeToNFA(val.right)
+	processingActions['|']()
 
 
 def epsilon():
@@ -174,7 +186,8 @@ def epsilon():
 		menu_actions['main_menu']()
 def emptySet():
 	print('empty')
-def union():
+def union(left, right):
+
 	print("union")
 def star():
 	print('star')
@@ -229,3 +242,4 @@ if __name__ == '__main__':
 	print(concatedExpressionList)
 	for regex in concatedExpressionList:
 		setUpTheNodesInTree(regex)
+	syntaxTreeToNFA(root)
