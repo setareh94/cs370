@@ -16,7 +16,7 @@ newDFATransition = {}   # Map for DFA transition
 newStartState = None    # new start state for DFA
 newAcceptStates = set() #set of accepting states
 newStatesMarked = list()
-regularExpressionList = []
+stringsList = []
 """
 Function: readFile
 Arguments: fileName
@@ -41,26 +41,26 @@ def readFile(fileName):
 		# Read in the Regular Expression
 		m = f.readline()
 		m = m.strip(" ")
+		m = m.strip("\n")
+		makeConcatToAppear(m)
+
 		# Create syntax tree
-		setUpTheNodesInTree(m.strip("\n"))
+
+		# setUpTheNodesInTree(m.strip("\n"))
 		m = f.readline()
 
 		# Read in the inputs
 		while m:
-			regularExpressionList.append(m.strip("\n"))
+			# setUpTheNodesInTree(m.strip("\n"))
+
+			stringsList.append(m.strip("\n"))
 			m = f.readline()
 
-		print(regularExpressionList)
+		print(stringsList)
 
 # Setting up the tree
 
-processingActions = {
-	'e': 'epsilon',
-	'N': 'emptySet',
-	'|': 'union',
-	'*': 'star',
-	'concat' : 'concat',
-}
+
 # Nodes to represent tree nodes in the syntax tree
 # Note: * operator only has a left child
 class Node:
@@ -84,8 +84,9 @@ def setUpTheNodesInTree(expression):
 	operandsStack = []
 	print(expression)
 	
-	# TODO: error checking for invalid expression
 	# TODO: add implied concats
+
+
 	# TODO: add epsilons
 
 	for i in expression:
@@ -116,7 +117,7 @@ def setUpTheNodesInTree(expression):
 				op = operatorStack.pop()
 				# check if op has a greater than or equal precedence to operator just scanned
 				# precedence is star highest, then concatenation, then union
-				if((op == '*') | (op == 'concat' and i != '*') | (op == '|' and i == '|')):
+				if((op == '*') | (op == '.' and i != '*') | (op == '|' and i == '|')):
 					# op >= i
 					# create new syntax tree and add it to operands stack
 					createNewSyntaxTree(op, operandsStack, operatorStack)
@@ -130,6 +131,10 @@ def setUpTheNodesInTree(expression):
 			else:
 				# operator stack is empty
 				operatorStack.append(i)
+		else:
+				#invalid expression throw error
+			print(i)
+			print('Invalid expression')
 	# There are no more characters to scan
 	# Empty the operator stack and create new syntax tree for each operator
 	while(len(operatorStack) > 0):
@@ -179,7 +184,52 @@ def star():
 	print('star')
 def processingTree():
 	print("processingTree")
+def concat():
+	print('concat')
+
+processingActions = {
+	'e': epsilon,
+	'N': emptySet,
+	'|': union,
+	'*': star,
+	'.':concat,
+}
+
+concatedExpressionList = []
+#make the concatination shown for ace of putting it in the tree
+def makeConcatToAppear(expression):
+	concatExp = ''
+	print(expression)
+	print ('length of expression is ' + str(len(expression)))
+	if (len(expression)>1):
+		for i in range(len(expression)-1):
+			currentChar = expression[i]
+			print('currentChat ' + currentChar)
+			nextChar = expression[i+1]
+			print('nextChar ' + nextChar)
+
+			#Have if statment to check for epsilon and empty expressions
+			if not currentChar and not nextChar:
+				#I am not sure what should happen if we scan a empty expression 
+				break
+			if ((currentChar == ')' or currentChar == '*' or ((currentChar not in processingActions) and currentChar != '('))
+	            and (nextChar == '(' or ((nextChar not in processingActions) and nextChar != ')'))):
+				concatExp += currentChar + '.'
+				print('hello')
+			else:
+				concatExp +=currentChar
+		print(concatExp)
+		fullyConcat =  concatExp + expression[len(expression)-1]
+		concatedExpressionList.append(fullyConcat)
+	else:
+		concatedExpressionList.append(expression)
+
+
 
 
 if __name__ == '__main__':
 	readFile(sys.argv[1])
+	print('Printing fully concat list')
+	print(concatedExpressionList)
+	for regex in concatedExpressionList:
+		setUpTheNodesInTree(regex)
