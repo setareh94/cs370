@@ -18,6 +18,9 @@ newAcceptStates = set() #set of accepting states
 newStatesMarked = list()
 stringsList = []
 root = None
+stateNumber = 0
+finalNFA = None
+
 """
 Function: readFile
 Arguments: fileName
@@ -169,15 +172,36 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 	# push new syntax tree onto operands stack
 	operandsStack.append(x)
 
+class NFAObject:
+	def __init__(self, start, states, accepting, transition):
+		self.start = start
+		self.states = states
+		self.accepting = accepting
+		self.transition = transition
+
+def helperSyntaxTreeToNFA(Node val):
+	global finalNFA
+	finalNFA = syntaxTreeToNFA(val)
+
 def syntaxTreeToNFA(Node val):
-	if val.value == alphabets:
-		transition[tuple(states, val.value)] = states + 1
-
-
-	if val.left:
-		syntaxTreeToNFA(val.left)
-	if val.right:
-		syntaxTreeToNFA(val.right)
+	global stateNumber
+	current = val.value
+	if current == alphabets:
+		states = [stateNumber, stateNumber + 1]
+		trans = defaultdict()
+		trans[tuple(stateNumber, current)] = stateNumber + 1
+		NFAObject(stateNumber, states, stateNumber + 1, trans )
+		stateNumber = stateNumber + 2
+	if current == 'e':
+		create an NFA from scratch
+	if current == 'N':
+		create NFA
+	if current == '|':
+		if val.left:
+			left = syntaxTreeToNFA(val.left)
+		if val.right:
+			right = syntaxTreeToNFA(val.right)
+		union(left, right)
 	processingActions['|']()
 
 
@@ -187,8 +211,16 @@ def epsilon():
 def emptySet():
 	print('empty')
 def union(left, right):
+	global stateNumber
+	newStart = stateNumber
+	newStates = right.states.append(left.states)
+	newStates = newStates.append(newStart)
+	transition = defaultdict()
+	transition[tuple(newStart, 'e')] = right.start
+	transition[tuple(newStart, 'e')] = left.start
+	accept = right.accept.append(left.accept)
+	NFAObject(newStart, newStates, accept, transition)
 
-	print("union")
 def star():
 	print('star')
 def processingTree():
@@ -242,4 +274,4 @@ if __name__ == '__main__':
 	print(concatedExpressionList)
 	for regex in concatedExpressionList:
 		setUpTheNodesInTree(regex)
-	syntaxTreeToNFA(root)
+	helperSyntaxTreeToNFA(root)
