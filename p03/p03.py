@@ -84,10 +84,6 @@ def setUpTheNodesInTree(expression):
 	operandsStack = []
 	print(expression)
 	
-	# TODO: add implied concats
-
-
-	# TODO: add epsilons
 
 	for i in expression:
 		print('operands stack')
