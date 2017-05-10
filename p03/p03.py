@@ -90,29 +90,29 @@ def setUpTheNodesInTree(expression):
 	# TODO: add epsilons
 
 	for i in expression:
-		"""		print('operands stack')
+		print('operands stack')
 		for a in operandsStack:
 			print(a)
 		print('operator stack')
 		print(operatorStack)
 		print('processing i')
 		print(i)
-		"""
+		
 		# Check if symbol from the alphabet
-		if(i in alphabets):
+		if(i in alphabets or i == 'e'):
 			x = Node(i)
 			operandsStack.append(x)
 		elif i == '(':
 			operatorStack.append(i)
 		elif(i == ')'):
 			# pop operators off stack until ( is popped off
-			v = operandsStack.pop()
+			v = operatorStack.pop()
 			while (v != '(' and len(operatorStack) > 0):
 				# create new syntax tree and add it to operands stack
 				createNewSyntaxTree(v, operandsStack, operatorStack)
-				v = operandsStack.pop()
+				v = operatorStack.pop()
 		# Check if an operator
-		elif(i in processingActions):
+		elif(i in processingActions and i != 'e'):
 			if(len(operatorStack) > 0):
 				op = operatorStack.pop()
 				# check if op has a greater than or equal precedence to operator just scanned
