@@ -44,7 +44,7 @@ def readFile(fileName):
 
 		# Read in the Regular Expression
 		m = f.readline()
-		m = m.strip(" ")
+		m = m.replace(" ", "")
 		m = m.strip("\n")
 		makeConcatToAppear(m)
 
@@ -112,6 +112,9 @@ def setUpTheNodesInTree(expression):
 				# create new syntax tree and add it to operands stack
 				createNewSyntaxTree(v, operandsStack, operatorStack)
 				v = operatorStack.pop()
+			if (v != '(' and len(operatorStack) == 0):
+				print("Invalid expression!!")
+				break
 		# Check if an operator
 		elif(i in processingActions and i != 'e'):
 			if(len(operatorStack) > 0):
@@ -173,60 +176,133 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 	operandsStack.append(x)
 
 class NFAObject:
-	def __init__(self, start, states, accepting, transition):
+	states = list()
+	accept = list()
+	def __init__(self, start, states, accept, transition):
 		self.start = start
 		self.states = states
-		self.accepting = accepting
+		self.accept = accept
 		self.transition = transition
 
-def helperSyntaxTreeToNFA(Node val):
+def helperSyntaxTreeToNFA(val):
 	global finalNFA
 	finalNFA = syntaxTreeToNFA(val)
+	print("Final NFA")
+	print(vars(finalNFA).items())
 
-def syntaxTreeToNFA(Node val):
+def syntaxTreeToNFA(val):
 	global stateNumber
 	current = val.value
-	if current == alphabets:
-		states = [stateNumber, stateNumber + 1]
+	if (current in alphabets):
+		states = list()
+		states.append(stateNumber)
+		states.append(stateNumber + 1)
 		trans = defaultdict()
-		trans[tuple(stateNumber, current)] = stateNumber + 1
-		NFAObject(stateNumber, states, stateNumber + 1, trans )
+		trans[tuple((stateNumber, current))] = stateNumber + 1
+		accept = list()
+		accept.append(stateNumber + 1)
+		start = stateNumber
 		stateNumber = stateNumber + 2
-	if current == 'e':
-		create an NFA from scratch
-	if current == 'N':
-		create NFA
-	if current == '|':
+		return NFAObject(start, states, accept, trans )
+	elif (current == 'e'):
+		return epsilon()
+	elif (current == 'N'):
+		return emptySet()
+	elif (current == '*'):
+		if val.left:
+			left = syntaxTreeToNFA(val.left)
+		return star(left)
+	elif (current == '.'):
 		if val.left:
 			left = syntaxTreeToNFA(val.left)
 		if val.right:
 			right = syntaxTreeToNFA(val.right)
-		union(left, right)
-	processingActions['|']()
+		print("syntaxTreeToNFA")
+		print(left)
+		print(vars(left).items)
+		print(right)
+		print(vars(right))
+		return concat(left, right)
+	elif (current == '|'):
+		if val.left:
+			left = syntaxTreeToNFA(val.left)
+		if val.right:
+			right = syntaxTreeToNFA(val.right)
+		return union(left, right)
+
 
 
 def epsilon():
-	if ch == '':
-		menu_actions['main_menu']()
+	global stateNumber
+	states = list()
+	states.append(stateNumber)
+	states.append(stateNumber + 1)
+	trans = defaultdict()
+	trans[tuple((stateNumber, 'e'))] = stateNumber + 1	
+	accept = list()
+	accept.append(stateNumber + 1)
+	start = stateNumber
+	stateNumber = stateNumber + 2
+	return NFAObject(start, states, accept, trans )
 def emptySet():
+	states = list()
+	states.append(stateNumber)
+	trans = defaultdict()
+	accept = list()
+	start = stateNumber
+	stateNumber = stateNumber + 1
+	return NFAObject(start, states, accept, trans )
 	print('empty')
 def union(left, right):
+	print("in union")
+	print(left)
+	print(vars(left).items())
+	print(right)
+	print(vars(right).items())
 	global stateNumber
 	newStart = stateNumber
-	newStates = right.states.append(left.states)
-	newStates = newStates.append(newStart)
+	newStates = right.states + left.states
+	newStates.append(newStart)
+	print("printing newstates in union")
+	print(newStates)
 	transition = defaultdict()
-	transition[tuple(newStart, 'e')] = right.start
-	transition[tuple(newStart, 'e')] = left.start
-	accept = right.accept.append(left.accept)
-	NFAObject(newStart, newStates, accept, transition)
+	transition[tuple((newStart, 'e'))] = list((right.start, left.start))
+	transition.update(right.transition)
+	transition.update(left.transition)
+	accept = right.accept + left.accept
+	stateNumber = stateNumber + 1
+	return NFAObject(newStart, newStates, accept, transition)
 
-def star():
-	print('star')
-def processingTree():
-	print("processingTree")
-def concat():
-	print('concat')
+def star(left):
+	global stateNumber
+	newStart = stateNumber
+	newStates = left.states
+	newStates.append(newStart)
+	transition = defaultdict()
+	transition[tuple((newStart, 'e'))] = left.start
+	transition.update(left.transition)
+	for accept in left.accept:
+		transition[tuple((accept, 'e'))] = left.start
+	accept = left.accept
+	accept.append(newStart)
+	stateNumber = stateNumber + 1
+	return NFAObject(newStart, newStates, accept, transition)
+
+def concat(left, right):
+	print("in concat")
+	print(left)
+	print(vars(left).items())
+	print(right)
+	print(vars(right).items())
+	newStart = left.start
+	newStates = right.states + left.states
+	left.transition.update(right.transition)
+	transition = defaultdict()
+	transition = left.transition
+	for accept in left.accept:
+		transition[tuple((accept, 'e'))] = right.start
+	accept = right.accept
+	return NFAObject(newStart, newStates, accept, transition)
 
 processingActions = {
 	'e': epsilon,
