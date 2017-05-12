@@ -9,6 +9,7 @@ from collections import deque
 numberOfStates = 0
 alphabets = []          # List of alphabets
 transition = defaultdict() 
+transition_NFA = defaultdict
 acceptingStates = []	# List of accepting states
 inputs = [] 			# List of DFA Inputs
 startStateAfterE = None # Start state after epsilon transition
@@ -22,6 +23,190 @@ stateNumber = 0
 finalNFA = None
 
 """
+Function: conversionToDFA
+Arguments: none
+Description:
+	Convert the NFA to a DFA with a
+	new transition function and new states
+	keeping track of what states the NFA would be at
+"""
+def conversionToDFA():
+	DFATransitions = defaultdict()
+	global newStatesMarked
+	queue = deque()
+	findNewStartState()
+	start = list(startStateAfterE)
+	if start not in queue:
+		queue.append(start)
+	print("pritning queue")
+	print(queue)
+	print(len(queue))
+	while (queue):
+		currentState = queue.popleft()
+		print("current state")
+		print(currentState)
+		print('queue')
+		newStatesMarked.append(currentState)
+		nextStates = list()
+		for a in alphabets:
+			print(len(alphabets))
+			nextStates = list()
+			if currentState:
+				print("current state is")
+				print(currentState)
+				for eachState in currentState:
+					v = tuple((int(eachState), a))
+					print(transition_NFA)
+					if v in transition_NFA:
+						print("v is " + str(v))
+						for x in transition_NFA[v]:
+							if x not in nextStates:
+								nextStates.append(x)
+								print('x is' + str(x))
+				# Check what state the next states could be in 
+				# with the episilon transitions
+				print("why empty")
+				print(nextStates)
+				print(currentState)
+
+
+				epsilonTransition(nextStates, currentState)
+				# Add to the new transition function
+				nextStates = sorted(nextStates)
+			else:
+				nextStates = currentState	
+				print(nextStates)
+
+			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
+
+			if ((sorted(nextStates) not in queue) 
+				and (sorted(nextStates) not in newStatesMarked)):
+				queue.append(sorted(nextStates))
+	#Covert from set of one states to set of integers
+	print("Printing DFA transiton")
+	print(DFATransitions)
+	changeStateNames(DFATransitions)
+
+
+"""
+Function: epsilonTransition
+Arguments: nextstates, currentState
+Description:
+ 	The function Check what state the next states could be in 
+	with the episilon transitions
+"""
+def epsilonTransition(nextStates, currentState):
+	checkForE = deque()
+	checkForE.append(nextStates)
+	checkedForE = list()
+
+	while (checkForE):
+		curState = checkForE.popleft()
+		for eachState in curState:
+			if eachState not in sorted(checkedForE):
+				checkedForE.append(eachState)
+				v = tuple((int(eachState), "e"))
+				if v in transition_NFA:
+					for x in transition_NFA[v]:
+						if x not in nextStates:
+							nextStates.append(x)
+							if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
+								checkForE.append(x)
+
+
+"""
+Function: findNewStartState
+Arguments: none
+Description:
+	Find the new start state compensating
+	for epsilon transitions
+"""
+def findNewStartState():
+	global startStateAfterE
+	checkForE = deque()
+	checkForE.append(startState)
+	checkedForE = list()
+	print(startState)
+
+	nextStates = list(startState)
+	while (checkForE):
+		curState = checkForE.popleft()
+		for eachState in curState:
+			if eachState not in sorted(checkedForE):
+				checkedForE.append(eachState)
+				# search for any epsilon transitions
+				v = tuple((int(eachState), "e"))
+				if v in transition_NFA:
+					for x in transition_NFA[v]:
+						if x not in nextStates:
+							nextStates.append(x)
+							if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
+								checkForE.append(x)
+
+	startStateAfterE = sorted(nextStates)
+	print("Starte staate after e")
+	print(startStateAfterE)
+
+
+"""
+Function: changeStateNames
+Arguments: DFATransitions
+Description:
+	Takes in a dictionary containing DFA transition 
+	functions (DFATransitions) and Convert DFA states 
+	from the form of set of states to just one integer.
+"""
+def changeStateNames(DFATransitions):
+	lookup = {}
+	i = 1
+	global newDFATransition
+	global newStartState
+	global newAcceptStates
+	# Go through every transition states
+	print('new transitions')
+	print(DFATransitions)
+
+	for key, inp in DFATransitions:
+		value = DFATransitions[key, inp]
+		# key is a current state in the NFA
+		if key in lookup:
+			newKey = tuple((lookup[key], inp))
+		else:
+			lookup[key] = i
+			newKey = (tuple((i, inp)))
+			i = i +1 
+		# value is a next state in the NFA
+		if tuple(value,) in lookup:
+			newValue = lookup[tuple(value,)]
+		else:
+			lookup[tuple(value,)] = i
+			newValue = i
+			i = i +1
+		newDFATransition[newKey] = newValue
+
+	newStartState = lookup[tuple(startStateAfterE,)]
+
+	# lookup new accept states
+	for keys in lookup:
+		for s in acceptingStates:
+			if (str(s) in keys):
+				newAcceptStates.add(lookup[keys])
+
+
+
+
+"""
+ Function: writeDFAtoFile
+ Arguments: fileName
+ Description:
+	Takes in filename and write the created dfa 
+	into a user specific file.
+"""
+
+
+
+
+"""
 Function: readFile
 Arguments: fileName
 Description:
@@ -31,10 +216,8 @@ Description:
 """
 def readFile(fileName):
 
-	global startState
-	global acceptingStates
 	global alphabets
-	global numberOfStates
+	global inputs
 
 	with open(fileName,'r') as f:
 
@@ -57,10 +240,40 @@ def readFile(fileName):
 		while m:
 			# setUpTheNodesInTree(m.strip("\n"))
 
-			stringsList.append(m.strip("\n"))
+			inputs.append(m.strip("\n"))
 			m = f.readline()
 
-		print(stringsList)
+		print(inputs)
+
+
+
+def checkDFAInput():
+	currentState = newStartState
+	if (inputs) :
+		for val in inputs:
+			print(val)
+			currentState = newStartState
+			#empty strings should be accepted only
+			# if the accepting state was same as the current sate
+			if len(val) == 0:
+				if currentState in newAcceptStates:
+					print("Accept")
+				else:
+					print("Reject")
+			else:
+				for i in val:
+					reject = False
+					try:
+						nextState = newDFATransition[tuple((int(currentState), i))]
+						currentState = int(nextState)
+					#If the transition path did not exist reject
+					except KeyError:
+						reject = True
+
+				if currentState in newAcceptStates and not reject:
+					print("Accept")
+				else:
+					print("Reject")
 
 # Setting up the tree
 
@@ -185,10 +398,22 @@ class NFAObject:
 		self.transition = transition
 
 def helperSyntaxTreeToNFA(val):
+	global startState
 	global finalNFA
+	global transition_NFA
 	finalNFA = syntaxTreeToNFA(val)
 	print("Final NFA")
 	print(vars(finalNFA).items())
+	startState = str(finalNFA.start)
+	print("start state is" + str(startState))
+	acceptingStates = finalNFA.accept
+	print(acceptingStates)
+	numberOfStates = len(finalNFA.states)
+	print(numberOfStates)
+	transition_NFA = finalNFA.transition
+	transition_NFA = dict((k,str(v)) for k,v in transition_NFA.items())
+
+	print(transition_NFA)
 
 def syntaxTreeToNFA(val):
 	global stateNumber
@@ -351,3 +576,5 @@ if __name__ == '__main__':
 	for regex in concatedExpressionList:
 		setUpTheNodesInTree(regex)
 	helperSyntaxTreeToNFA(root)
+	conversionToDFA()
+	checkDFAInput()

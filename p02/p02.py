@@ -59,11 +59,12 @@ def readFile(fileName):
 			else:
 				transition[tuple((int(a),b))] = [c.strip("\n")]
 			m = f.readline()
+		print(transition)
 			
 		m = f.readline()
 		#Store StartState from the file
 		startState = m.strip("\n")
-
+		print(startState)
 		#Store acceptionStates
 		acceptingStates = list((map(int, f.readline().split())))
 
