@@ -10,7 +10,7 @@ numberOfStates = 0
 alphabets = []          # List of alphabets
 transition = defaultdict() 
 transition_NFA = defaultdict
-acceptingStates = []	# List of accepting states
+acceptingStates = set()	# List of accepting states
 inputs = [] 			# List of DFA Inputs
 startStateAfterE = None # Start state after epsilon transition
 newDFATransition = {}   # Map for DFA transition
@@ -185,7 +185,8 @@ def changeStateNames(DFATransitions):
 		newDFATransition[newKey] = newValue
 
 	newStartState = lookup[tuple(startStateAfterE,)]
-
+	print("ACCEPTING STATES")
+	print(acceptingStates)
 	# lookup new accept states
 	for keys in lookup:
 		for s in acceptingStates:
@@ -249,6 +250,11 @@ def readFile(fileName):
 
 def checkDFAInput():
 	currentState = newStartState
+	print("start")
+	print(newStartState)
+	print(newDFATransition)
+	print('accept')
+	print(newAcceptStates)
 	if (inputs) :
 		for val in inputs:
 			print(val)
@@ -257,9 +263,9 @@ def checkDFAInput():
 			# if the accepting state was same as the current sate
 			if len(val) == 0:
 				if currentState in newAcceptStates:
-					print("Accept")
+					print("true")
 				else:
-					print("Reject")
+					print("false")
 			else:
 				for i in val:
 					reject = False
@@ -271,9 +277,9 @@ def checkDFAInput():
 						reject = True
 
 				if currentState in newAcceptStates and not reject:
-					print("Accept")
+					print("true")
 				else:
-					print("Reject")
+					print("false")
 
 # Setting up the tree
 
@@ -406,7 +412,9 @@ def helperSyntaxTreeToNFA(val):
 	print(vars(finalNFA).items())
 	startState = str(finalNFA.start)
 	print("start state is" + str(startState))
-	acceptingStates = finalNFA.accept
+	print("FINAL NFA ACCEPT")
+	print(finalNFA.accept)
+	acceptingStates.update(finalNFA.accept)
 	print(acceptingStates)
 	numberOfStates = len(finalNFA.states)
 	print(numberOfStates)
