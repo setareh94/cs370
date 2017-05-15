@@ -21,6 +21,7 @@ stringsList = []
 root = None
 stateNumber = 0
 finalNFA = None
+startState = None
 
 """
 Function: conversionToDFA
@@ -55,8 +56,7 @@ def conversionToDFA():
 				print("current state is")
 				print(currentState)
 				for eachState in currentState:
-					if(eachState.isdigit()):
-						v = tuple((int(eachState), a))
+					v = tuple((int(eachState), a))
 					print(transition_NFA)
 					if v in transition_NFA:
 						print("v is " + str(v))
@@ -143,20 +143,28 @@ Description:
 """
 def findNewStartState():
 	global startStateAfterE
+	global startState
 	checkForE = deque()
-	checkForE.append(startState)
+	checkForE.append([startState])
 	checkedForE = list()
 	print(startState)
 
-	nextStates = list(startState)
+	nextStates = list()
+	nextStates.append(int(startState))
 	while (checkForE):
 		curState = checkForE.popleft()
+		print("current state")
 		print(curState)
 		for eachState in curState:
+			eachState = int(eachState)
+			print("eachState")
+			print(eachState)
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
 				# search for any epsilon transitions
 				v = tuple((int(eachState), "e"))
+				print('v')
+				print(v)
 				if v in transition_NFA:
 					mult = transition_NFA[v].strip('[').strip(']').replace(" ", "").split(',')
 					print(mult)
@@ -171,7 +179,7 @@ def findNewStartState():
 										checkForE.append(y)
 						else:
 							if x not in nextStates:
-								nextStates.append(x)
+								nextStates.append(int(x))
 								if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
 									checkForE.append(x)
 
@@ -444,7 +452,7 @@ def helperSyntaxTreeToNFA(val):
 	finalNFA = syntaxTreeToNFA(val)
 	print("Final NFA")
 	print(vars(finalNFA).items())
-	startState = str(finalNFA.start)
+	startState = finalNFA.start
 	print("start state is" + str(startState))
 	print("FINAL NFA ACCEPT")
 	print(finalNFA.accept)
