@@ -55,7 +55,8 @@ def conversionToDFA():
 				print("current state is")
 				print(currentState)
 				for eachState in currentState:
-					v = tuple((int(eachState), a))
+					if(eachState.isdigit()):
+						v = tuple((int(eachState), a))
 					print(transition_NFA)
 					if v in transition_NFA:
 						print("v is " + str(v))
@@ -106,7 +107,10 @@ def epsilonTransition(nextStates, currentState):
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
 				print(curState)
-				v = tuple((int(eachState), "e"))
+				if (eachState.isdigit()):
+					print("hi")
+					print(eachState)
+					v = tuple((int(eachState), "e"))
 				if v in transition_NFA:
 					mult = transition_NFA[v].strip('[').strip(']').replace(" ", "").split(',')
 					print(mult)
@@ -284,15 +288,14 @@ def checkDFAInput():
 	print(newAcceptStates)
 	if (inputs) :
 		for val in inputs:
-			print(val)
 			currentState = newStartState
 			#empty strings should be accepted only
 			# if the accepting state was same as the current sate
 			if len(val) == 0:
 				if currentState in newAcceptStates:
-					print("true")
+					print("Accept")
 				else:
-					print("false")
+					print("Reject")
 			else:
 				for i in val:
 					reject = False
@@ -304,9 +307,9 @@ def checkDFAInput():
 						reject = True
 
 				if currentState in newAcceptStates and not reject:
-					print("true")
+					print("Accept")
 				else:
-					print("false")
+					print("Reject")
 
 # Setting up the tree
 
@@ -359,8 +362,8 @@ def setUpTheNodesInTree(expression):
 				createNewSyntaxTree(v, operandsStack, operatorStack)
 				v = operatorStack.pop()
 			if (v != '(' and len(operatorStack) == 0):
-				print("Invalid expression!!")
-				break
+				print("Invalid expression")
+				exit()
 		# Check if an operator
 		elif(i in processingActions and i != 'e'):
 			if(len(operatorStack) > 0):
@@ -385,6 +388,7 @@ def setUpTheNodesInTree(expression):
 				#invalid expression throw error
 			print(i)
 			print('Invalid expression')
+			exit()
 	# There are no more characters to scan
 	# Empty the operator stack and create new syntax tree for each operator
 	while(len(operatorStack) > 0):
@@ -407,15 +411,18 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 	"""
 	if(op == '*'):
 		if(len(operandsStack) == 0):
-			print("ERROR with expression")
+			print("Invalid expression")
+			exit()
 		left = operandsStack.pop()
 		x = Node(op, left)
 	else:
 		if(len(operandsStack) == 0):
-			print("ERROR with expression")
+			print("Invalid expression")
+			exit()
 		right = operandsStack.pop()
 		if(len(operandsStack) == 0):
-			print("ERROR with expression")
+			print("Invalid expression")
+			exit()
 		left = operandsStack.pop()
 		x = Node(op, left, right)
 	# push new syntax tree onto operands stack
