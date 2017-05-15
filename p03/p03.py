@@ -106,13 +106,10 @@ def epsilonTransition(nextStates, currentState):
 		for eachState in curState:
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
-				print(curState)
-				if (eachState.isdigit()):
-					print("hi")
-					print(eachState)
-					v = tuple((int(eachState), "e"))
+				print(curState)	
+				v = tuple((int(eachState), "e"))
 				if v in transition_NFA:
-					mult = transition_NFA[v].strip('[').strip(']').replace(" ", "").split(',')
+					mult = transition_NFA[v]
 					print(mult)
 					print(type(transition_NFA[v]))
 					for x in mult:
@@ -129,7 +126,7 @@ def epsilonTransition(nextStates, currentState):
 							if x not in nextStates:
 								nextStates.append(x)
 								if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
-									checkForE.append(x)
+									checkForE.append([x])
 	
 						
 
@@ -145,12 +142,12 @@ def findNewStartState():
 	global startStateAfterE
 	global startState
 	checkForE = deque()
-	checkForE.append([startState])
+	checkForE.append(startState)
 	checkedForE = list()
 	print(startState)
 
 	nextStates = list()
-	nextStates.append(int(startState))
+	nextStates.extend(startState)
 	while (checkForE):
 		curState = checkForE.popleft()
 		print("current state")
@@ -166,7 +163,8 @@ def findNewStartState():
 				print('v')
 				print(v)
 				if v in transition_NFA:
-					mult = transition_NFA[v].strip('[').strip(']').replace(" ", "").split(',')
+					print(transition_NFA[v])
+					mult = transition_NFA[v]
 					print(mult)
 					print(type(transition_NFA[v]))
 					for x in mult:
@@ -181,8 +179,8 @@ def findNewStartState():
 							if x not in nextStates:
 								nextStates.append(int(x))
 								if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
-									checkForE.append(x)
-
+									checkForE.append([x])
+	print(nextStates)
 	startStateAfterE = sorted(nextStates)
 	print("Starte staate after e")
 	print(startStateAfterE)
@@ -227,10 +225,11 @@ def changeStateNames(DFATransitions):
 	newStartState = lookup[tuple(startStateAfterE,)]
 	print("ACCEPTING STATES")
 	print(acceptingStates)
+	print(lookup)
 	# lookup new accept states
 	for keys in lookup:
 		for s in acceptingStates:
-			if (str(s) in keys):
+			if (s in keys):
 				newAcceptStates.add(lookup[keys])
 
 
@@ -461,7 +460,7 @@ def helperSyntaxTreeToNFA(val):
 	numberOfStates = len(finalNFA.states)
 	print(numberOfStates)
 	transition_NFA = finalNFA.transition
-	transition_NFA = dict((k,str(v)) for k,v in transition_NFA.items())
+	transition_NFA = dict((k,v) for k,v in transition_NFA.items())
 
 	print(transition_NFA)
 
@@ -473,10 +472,10 @@ def syntaxTreeToNFA(val):
 		states.append(stateNumber)
 		states.append(stateNumber + 1)
 		trans = defaultdict()
-		trans[tuple((stateNumber, current))] = stateNumber + 1
+		trans[tuple((stateNumber, current))] = [stateNumber + 1]
 		accept = list()
 		accept.append(stateNumber + 1)
-		start = stateNumber
+		start = [stateNumber]
 		stateNumber = stateNumber + 2
 		return NFAObject(start, states, accept, trans )
 	elif (current == 'e'):
@@ -513,10 +512,10 @@ def epsilon():
 	states.append(stateNumber)
 	states.append(stateNumber + 1)
 	trans = defaultdict()
-	trans[tuple((stateNumber, 'e'))] = stateNumber + 1	
+	trans[tuple((stateNumber, 'e'))] = [stateNumber + 1]	
 	accept = list()
 	accept.append(stateNumber + 1)
-	start = stateNumber
+	start = [stateNumber]
 	stateNumber = stateNumber + 2
 	return NFAObject(start, states, accept, trans )
 def emptySet():
@@ -524,7 +523,7 @@ def emptySet():
 	states.append(stateNumber)
 	trans = defaultdict()
 	accept = list()
-	start = stateNumber
+	start = [stateNumber]
 	stateNumber = stateNumber + 1
 	return NFAObject(start, states, accept, trans )
 	print('empty')
@@ -541,12 +540,17 @@ def union(left, right):
 	print("printing newstates in union")
 	print(newStates)
 	transition = defaultdict()
-	transition[tuple((newStart, 'e'))] = list((right.start, left.start))
+	r = right.start
+	print(type(r))
+	l = left.start
+	print("printing type")
+	print(r + l)
+	transition[tuple((newStart, 'e'))] = right.start + left.start
 	transition.update(right.transition)
 	transition.update(left.transition)
 	accept = right.accept + left.accept
 	stateNumber = stateNumber + 1
-	return NFAObject(newStart, newStates, accept, transition)
+	return NFAObject([newStart], newStates, accept, transition)
 
 def star(left):
 	global stateNumber
@@ -561,7 +565,7 @@ def star(left):
 	accept = left.accept
 	accept.append(newStart)
 	stateNumber = stateNumber + 1
-	return NFAObject(newStart, newStates, accept, transition)
+	return NFAObject([newStart], newStates, accept, transition)
 
 def concat(left, right):
 	print("in concat")
@@ -576,7 +580,7 @@ def concat(left, right):
 	transition = left.transition
 	for accept in left.accept:
 		if((accept, 'e') in transition):
-			transition[tuple((accept, 'e'))] = list((right.start, transition[tuple((accept, 'e'))]))
+			transition[tuple((accept, 'e'))] = right.start + transition[tuple((accept, 'e'))]
 		else:
 			transition[tuple((accept, 'e'))] = right.start
 	accept = right.accept
