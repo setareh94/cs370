@@ -39,36 +39,35 @@ def conversionToDFA():
 	start = list(startStateAfterE)
 	if start not in queue:
 		queue.append(start)
-	print("pritning queue")
-	print(queue)
-	print(len(queue))
+	#print("pritning queue")
+	#print(queue)
+	#print(len(queue))
 	while (queue):
 		currentState = queue.popleft()
-		print("current state")
-		print(currentState)
-		print('queue')
+		#print("current state")
+		#print(currentState)
+		#print('queue')
 		newStatesMarked.append(currentState)
 		nextStates = list()
 		for a in alphabets:
-			print(len(alphabets))
+			#print(len(alphabets))
 			nextStates = list()
 			if currentState:
-				print("current state is")
-				print(currentState)
+				#print("current state is")
+				#print(currentState)
 				for eachState in currentState:
 					v = tuple((int(eachState), a))
-					print(transition_NFA)
+					#print(transition_NFA)
 					if v in transition_NFA:
-						print("v is " + str(v))
+						#print("v is " + str(v))
 						for x in transition_NFA[v]:
 							if x not in nextStates:
 								nextStates.append(x)
-								print('x is' + str(x))
+								#print('x is' + str(x))
 				# Check what state the next states could be in 
 				# with the episilon transitions
-				print("why empty")
-				print(nextStates)
-				print(currentState)
+				#print(nextStates)
+				#print(currentState)
 
 
 				epsilonTransition(nextStates, currentState)
@@ -76,7 +75,7 @@ def conversionToDFA():
 				nextStates = sorted(nextStates)
 			else:
 				nextStates = currentState	
-				print(nextStates)
+				#print(nextStates)
 
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 
@@ -106,15 +105,13 @@ def epsilonTransition(nextStates, currentState):
 		for eachState in curState:
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
-				print(curState)	
+				#print(curState)	
 				v = tuple((int(eachState), "e"))
 				if v in transition_NFA:
 					mult = transition_NFA[v]
-					print(mult)
-					print(type(transition_NFA[v]))
 					for x in mult:
-						print('printing x')
-						print(x)
+						#print('printing x')
+						#print(x)
 						# Check if multiple epsilon transitions from the state
 						if type(x) is list:
 							for y in x:
@@ -150,23 +147,21 @@ def findNewStartState():
 	nextStates.extend(startState)
 	while (checkForE):
 		curState = checkForE.popleft()
-		print("current state")
-		print(curState)
+		#print("current state")
+		#print(curState)
 		for eachState in curState:
 			eachState = int(eachState)
-			print("eachState")
-			print(eachState)
+			#print("eachState")
+			#print(eachState)
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
 				# search for any epsilon transitions
 				v = tuple((int(eachState), "e"))
-				print('v')
-				print(v)
+				#print('v')
+				#print(v)
 				if v in transition_NFA:
-					print(transition_NFA[v])
+					#print(transition_NFA[v])
 					mult = transition_NFA[v]
-					print(mult)
-					print(type(transition_NFA[v]))
 					for x in mult:
 						# Check if multiple epsilon transitions from the state
 						if type(x) is list:
