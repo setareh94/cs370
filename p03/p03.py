@@ -105,13 +105,29 @@ def epsilonTransition(nextStates, currentState):
 		for eachState in curState:
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
+				print(curState)
 				v = tuple((int(eachState), "e"))
 				if v in transition_NFA:
-					for x in transition_NFA[v]:
-						if x not in nextStates:
-							nextStates.append(x)
-							if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
-								checkForE.append(x)
+					mult = transition_NFA[v].strip('[').strip(']').replace(" ", "").split(',')
+					print(mult)
+					print(type(transition_NFA[v]))
+					for x in mult:
+						print('printing x')
+						print(x)
+						# Check if multiple epsilon transitions from the state
+						if type(x) is list:
+							for y in x:
+								if y not in nextStates:
+									nextStates.append(y)
+									if (x not in sorted(checkForE)) and (y not in sorted(checkedForE)):
+										checkForE.append(y)
+						else:
+							if x not in nextStates:
+								nextStates.append(x)
+								if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
+									checkForE.append(x)
+	
+						
 
 
 """
@@ -131,17 +147,29 @@ def findNewStartState():
 	nextStates = list(startState)
 	while (checkForE):
 		curState = checkForE.popleft()
+		print(curState)
 		for eachState in curState:
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
 				# search for any epsilon transitions
 				v = tuple((int(eachState), "e"))
 				if v in transition_NFA:
-					for x in transition_NFA[v]:
-						if x not in nextStates:
-							nextStates.append(x)
-							if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
-								checkForE.append(x)
+					mult = transition_NFA[v].strip('[').strip(']').replace(" ", "").split(',')
+					print(mult)
+					print(type(transition_NFA[v]))
+					for x in mult:
+						# Check if multiple epsilon transitions from the state
+						if type(x) is list:
+							for y in x:
+								if y not in nextStates:
+									nextStates.append(y)
+									if (x not in sorted(checkForE)) and (y not in sorted(checkedForE)):
+										checkForE.append(y)
+						else:
+							if x not in nextStates:
+								nextStates.append(x)
+								if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
+									checkForE.append(x)
 
 	startStateAfterE = sorted(nextStates)
 	print("Starte staate after e")
@@ -253,7 +281,6 @@ def checkDFAInput():
 	print("start")
 	print(newStartState)
 	print(newDFATransition)
-	print('accept')
 	print(newAcceptStates)
 	if (inputs) :
 		for val in inputs:
@@ -533,7 +560,10 @@ def concat(left, right):
 	transition = defaultdict()
 	transition = left.transition
 	for accept in left.accept:
-		transition[tuple((accept, 'e'))] = right.start
+		if((accept, 'e') in transition):
+			transition[tuple((accept, 'e'))] = list((right.start, transition[tuple((accept, 'e'))]))
+		else:
+			transition[tuple((accept, 'e'))] = right.start
 	accept = right.accept
 	return NFAObject(newStart, newStates, accept, transition)
 
