@@ -22,7 +22,7 @@ root = None
 stateNumber = 0
 finalNFA = None
 startState = None
-
+resultFile = None
 """
 Function: conversionToDFA
 Arguments: none
@@ -288,30 +288,40 @@ def checkDFAInput():
 	print(newStartState)
 	print(newDFATransition)
 	print(newAcceptStates)
+	print(inputs)
 	if (inputs) :
-		for val in inputs:
-			currentState = newStartState
-			#empty strings should be accepted only
-			# if the accepting state was same as the current sate
-			if len(val) == 0:
-				if currentState in newAcceptStates:
-					print("Accept")
-				else:
-					print("Reject")
-			else:
-				for i in val:
-					reject = False
-					try:
-						nextState = newDFATransition[tuple((int(currentState), i))]
-						currentState = int(nextState)
-					#If the transition path did not exist reject
-					except KeyError:
-						reject = True
+		with open(resultFile, 'w') as f:
 
-				if currentState in newAcceptStates and not reject:
-					print("Accept")
+			for val in inputs:
+				currentState = newStartState
+				#empty strings should be accepted only
+				# if the accepting state was same as the current sate
+				if len(val) == 0:
+					if currentState in newAcceptStates:
+						print("true")
+						f.write("true\n")
+					else:
+						print("False")
+						f.write("false\n")
+
 				else:
-					print("Reject")
+					for i in val:
+						reject = False
+						try:
+							nextState = newDFATransition[tuple((int(currentState), i))]
+							currentState = int(nextState)
+						#If the transition path did not exist reject
+						except KeyError:
+							reject = True
+
+					if currentState in newAcceptStates and not reject:
+						print("true")
+						f.write("true\n")
+
+					else:
+						print("False")
+						f.write("false\n")
+
 
 # Setting up the tree
 
@@ -364,8 +374,11 @@ def setUpTheNodesInTree(expression):
 				createNewSyntaxTree(v, operandsStack, operatorStack)
 				v = operatorStack.pop()
 			if (v != '(' and len(operatorStack) == 0):
-				print("Invalid expression")
-				exit()
+				with open(resultFile, 'w') as f:
+
+					print("Invalid expression")
+					f.write("Invalid expression")
+					exit()
 		# Check if an operator
 		elif(i in processingActions and i != 'e'):
 			if(len(operatorStack) > 0):
@@ -389,8 +402,10 @@ def setUpTheNodesInTree(expression):
 		else:
 				#invalid expression throw error
 			print(i)
-			print('Invalid expression')
-			exit()
+			with open(resultFile, 'w') as f:
+				print("Invalid expression")
+				f.write("Invalid expression")			
+				exit()
 	# There are no more characters to scan
 	# Empty the operator stack and create new syntax tree for each operator
 	while(len(operatorStack) > 0):
@@ -411,24 +426,29 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 	"""	print('creating new syntax tree for')
 	print(op)
 	"""
-	if(op == '*'):
-		if(len(operandsStack) == 0):
-			print("Invalid expression")
-			exit()
-		left = operandsStack.pop()
-		x = Node(op, left)
-	else:
-		if(len(operandsStack) == 0):
-			print("Invalid expression")
-			exit()
-		right = operandsStack.pop()
-		if(len(operandsStack) == 0):
-			print("Invalid expression")
-			exit()
-		left = operandsStack.pop()
-		x = Node(op, left, right)
-	# push new syntax tree onto operands stack
-	operandsStack.append(x)
+	with open(resultFile, 'w') as f:
+ 
+		if(op == '*'):
+			if(len(operandsStack) == 0):
+				print("Invalid expression")
+				f.write("Invalid expression")
+				exit()
+			left = operandsStack.pop()
+			x = Node(op, left)
+		else:
+			if(len(operandsStack) == 0):
+				print("Invalid expression")
+				f.write("Invalid expression")
+				exit()
+			right = operandsStack.pop()
+			if(len(operandsStack) == 0):
+				print("Invalid expression")
+				f.write("Invalid expression")
+				exit()
+			left = operandsStack.pop()
+			x = Node(op, left, right)
+		# push new syntax tree onto operands stack
+		operandsStack.append(x)
 
 class NFAObject:
 	states = list()
@@ -621,12 +641,18 @@ def makeConcatToAppear(expression):
 
 
 
+
 if __name__ == '__main__':
-	readFile(sys.argv[1])
-	print('Printing fully concat list')
-	print(concatedExpressionList)
-	for regex in concatedExpressionList:
-		setUpTheNodesInTree(regex)
-	helperSyntaxTreeToNFA(root)
-	conversionToDFA()
-	checkDFAInput()
+	if len(sys.argv) < 2:
+		print ("Usage: \nArgument 1: Regex text file (e.g: re1In.txt) \n"
+					+ "Argument 2: Desired file name to write the results to (e.g: DFA1_result.txt)\n" )
+	else:
+		readFile(sys.argv[1])
+		resultFile = sys.argv[2]
+		print('Printing fully concat list')
+		print(concatedExpressionList)
+		for regex in concatedExpressionList:
+			setUpTheNodesInTree(regex)
+		helperSyntaxTreeToNFA(root)
+		conversionToDFA()
+		checkDFAInput()
