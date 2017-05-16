@@ -643,7 +643,7 @@ def makeConcatToAppear(expression):
 
 
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
+	if len(sys.argv) < 3:
 		print ("Usage: \nArgument 1: Regex text file (e.g: re1In.txt) \n"
 					+ "Argument 2: Desired file name to write the results to (e.g: DFA1_result.txt)\n" )
 	else:
