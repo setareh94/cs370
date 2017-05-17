@@ -228,19 +228,6 @@ def changeStateNames(DFATransitions):
 				newAcceptStates.add(lookup[keys])
 
 
-
-
-"""
- Function: writeDFAtoFile
- Arguments: fileName
- Description:
-	Takes in filename and write the created dfa 
-	into a user specific file.
-"""
-
-
-
-
 """
 Function: readFile
 Arguments: fileName
@@ -281,7 +268,14 @@ def readFile(fileName):
 		print(inputs)
 
 
-
+"""
+Function: checkDFAInput
+Arguments: None
+Description:
+	Run the DFA through the input given in the file
+	write to another file with true for inputs in the regular expression
+	and write false for inputs not in the regular expression
+"""
 def checkDFAInput():
 	currentState = newStartState
 	print("start")
