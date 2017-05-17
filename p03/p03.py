@@ -337,11 +337,11 @@ class Node:
 		return str(self.value)
 
 # Function to print the values in the syntax tree
-def print_tree(node):
+def print_tree(node, level=0):
 	if node == None: return
-	print(node.value)
-	print_tree(node.left)
-	print_tree(node.right)
+	print('\t' * level + node.value)
+	print_tree(node.left, level + 1)
+	print_tree(node.right, level + 1)
 
 # Parse the regular expression to create a syntax tree
 def setUpTheNodesInTree(expression):
@@ -381,24 +381,31 @@ def setUpTheNodesInTree(expression):
 					exit()
 		# Check if an operator
 		elif(i in processingActions and i != 'e'):
-			if(len(operatorStack) > 0):
-				op = operatorStack.pop()
-				# check if op has a greater than or equal precedence to operator just scanned
-				# precedence is star highest, then concatenation, then union
-				if((op == '*') | (op == '.' and i != '*') | (op == '|' and i == '|')):
-					# op >= i
-					# create new syntax tree and add it to operands stack
-					createNewSyntaxTree(op, operandsStack, operatorStack)
-					# push operand just scanned onto stack
-					operatorStack.append(i)
+			cont = True
+			while(cont):
+				if(len(operatorStack) > 0):
+					op = operatorStack.pop()
+					# check if op has a greater than or equal precedence to operator just scanned
+					# precedence is star highest, then concatenation, then union
+					if((op == '*') | (op == '`' and i == '|') | (op == '`' and i != '*') | (op == '|' and i == '|')):
+						print(op)
+						print(i)
+						print('op >= i')
+						# op >= i
+						# create new syntax tree and add it to operands stack
+						createNewSyntaxTree(op, operandsStack, operatorStack)
+						# push operand just scanned onto stack
+						#operatorStack.append(i)
+					else:
+						# op < i
+						# push op back onto the operator stack and i
+						operatorStack.append(op)
+						operatorStack.append(i)
+						cont = False
 				else:
-					# op < i
-					# push op back onto the operator stack and i
-					operatorStack.append(op)
+					# operator stack is empty
 					operatorStack.append(i)
-			else:
-				# operator stack is empty
-				operatorStack.append(i)
+					cont = False
 		else:
 				#invalid expression throw error
 			print(i)
@@ -501,7 +508,7 @@ def syntaxTreeToNFA(val):
 		if val.left:
 			left = syntaxTreeToNFA(val.left)
 		return star(left)
-	elif (current == '.'):
+	elif (current == '`'):
 		if val.left:
 			left = syntaxTreeToNFA(val.left)
 		if val.right:
@@ -606,7 +613,7 @@ processingActions = {
 	'N': emptySet,
 	'|': union,
 	'*': star,
-	'.':concat,
+	'`':concat,
 }
 
 concatedExpressionList = []
@@ -628,7 +635,7 @@ def makeConcatToAppear(expression):
 				break
 			if ((currentChar == ')' or currentChar == '*' or ((currentChar not in processingActions) and currentChar != '('))
 	            and (nextChar == '(' or ((nextChar not in processingActions) and nextChar != ')'))):
-				concatExp += currentChar + '.'
+				concatExp += currentChar + '`'
 				print('hello')
 			else:
 				concatExp +=currentChar
