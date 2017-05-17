@@ -319,7 +319,6 @@ def checkDFAInput():
 
 # Setting up the tree
 
-
 # Nodes to represent tree nodes in the syntax tree
 # Note: * operator only has a left child
 class Node:
@@ -329,22 +328,28 @@ class Node:
 		self.right = right
 	def __str__(self):
 		return str(self.value)
-
-# Function to print the values in the syntax tree
+"""
+Function: print_tree
+Arguments: the root node of the tree
+Description:
+	Function to print the values in the syntax tree
+"""
 def print_tree(node, level=0):
 	if node == None: return
 	print('\t' * level + node.value)
 	print_tree(node.left, level + 1)
 	print_tree(node.right, level + 1)
 
-# Parse the regular expression to create a syntax tree
+"""
+Function: setUpTheNodesInTree
+Arguments: string expression of the regualr expression
+Description:
+	Parse the regular expression to create a syntax tree
+"""
 def setUpTheNodesInTree(expression):
 	global root
 	operatorStack = []
 	operandsStack = []
-	print(expression)
-	
-
 	for i in expression:
 		print('operands stack')
 		for a in operandsStack:
@@ -418,17 +423,16 @@ def setUpTheNodesInTree(expression):
 	print_tree(root)
 
 
-
-# Creates a new syntax tree from operandsStack depending on operation
-# and adds it back onto the operands stack
+"""
+Function: createNewSyntaxTree
+Arguments: operation type, operand stack, operator stack
+Description:
+	Creates a new syntax tree from operandsStack depending on operation
+	and adds it back onto the operands stack
+"""
 def createNewSyntaxTree(op, operandsStack, operatorStack):
 	# Create syntax tree node from op
-
-	"""	print('creating new syntax tree for')
-	print(op)
-	"""
 	with open(resultFile, 'w') as f:
- 
 		if(op == '*'):
 			if(len(operandsStack) == 0):
 				print("Invalid expression")
@@ -451,6 +455,8 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 		# push new syntax tree onto operands stack
 		operandsStack.append(x)
 
+
+# An object to represent an NFA
 class NFAObject:
 	states = list()
 	accept = list()
@@ -460,6 +466,15 @@ class NFAObject:
 		self.accept = accept
 		self.transition = transition
 
+"""
+Function: helperSyntaxTreeToNFA
+Arguments: Node object of the root of the syntax tree
+Description:
+	Call syntaxTreeToNFA recursively to create an NFA from 
+	the syntax tree of the regex.
+	The global variables startState, finalNFA, and transition_NFA
+	should be set.
+"""
 def helperSyntaxTreeToNFA(val):
 	global startState
 	global finalNFA
@@ -480,6 +495,13 @@ def helperSyntaxTreeToNFA(val):
 
 	print(transition_NFA)
 
+"""
+Function: syntaxTreeToNFA
+Arguments: Node object of a piece of the syntax tree
+Description:
+	A recursive function to create NFA's for each operation in the 
+	input Node.
+"""
 def syntaxTreeToNFA(val):
 	global stateNumber
 	current = val.value
@@ -521,7 +543,12 @@ def syntaxTreeToNFA(val):
 		return union(left, right)
 
 
-
+"""
+Function: epsilon
+Arguments: None
+Description:
+	Create an NFAObject object for the epsilon regex
+"""
 def epsilon():
 	global stateNumber
 	states = list()
@@ -534,6 +561,12 @@ def epsilon():
 	start = [stateNumber]
 	stateNumber = stateNumber + 2
 	return NFAObject(start, states, accept, trans )
+"""
+Function: emptySet
+Arguments: None
+Description:
+	Create an NFAObject object for the emptySet regex
+"""
 def emptySet():
 	states = list()
 	states.append(stateNumber)
@@ -543,6 +576,13 @@ def emptySet():
 	stateNumber = stateNumber + 1
 	return NFAObject(start, states, accept, trans )
 	print('empty')
+
+"""
+Function: union
+Arguments: left and right NFAObjects that will be unioned
+Description:
+	Create an NFAObject object for the union regex
+"""
 def union(left, right):
 	print("in union")
 	print(left)
@@ -568,6 +608,12 @@ def union(left, right):
 	stateNumber = stateNumber + 1
 	return NFAObject([newStart], newStates, accept, transition)
 
+"""
+Function: star
+Arguments: An NFAObject that will be starred
+Description:
+	Create an NFAObject object for the star regex
+"""
 def star(left):
 	global stateNumber
 	newStart = stateNumber
@@ -583,6 +629,12 @@ def star(left):
 	stateNumber = stateNumber + 1
 	return NFAObject([newStart], newStates, accept, transition)
 
+"""
+Function: concat
+Arguments: left and right NFAObjects that will be concatenated together
+Description:
+	Create an NFAObject object for the concat regex
+"""
 def concat(left, right):
 	print("in concat")
 	print(left)
@@ -611,7 +663,13 @@ processingActions = {
 }
 
 concatedExpressionList = []
-#make the concatination shown for ace of putting it in the tree
+
+"""
+Function: makeConcatToAppear
+Arguments: String expression
+Description:
+	Make the concatination shown for ace of putting it in the tree
+"""
 def makeConcatToAppear(expression):
 	concatExp = ''
 	print(expression)
@@ -638,9 +696,6 @@ def makeConcatToAppear(expression):
 		concatedExpressionList.append(fullyConcat)
 	else:
 		concatedExpressionList.append(expression)
-
-
-
 
 
 if __name__ == '__main__':
