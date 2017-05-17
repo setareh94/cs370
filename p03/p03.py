@@ -1,3 +1,10 @@
+"""
+ COMP 370, Spring 2017
+ Program #3, Searching text for string that are 
+ in the language of a regular expression
+ Co-Authored: Setareh Lotfi and Katie Levy
+"""
+
 #System library for read and write
 import sys
 import os
@@ -5,6 +12,10 @@ import os
 from collections import defaultdict
 from collections import deque
 
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+#				G E N E R A L
+""""""""""""""""""""""""""""""""""""""""""""""""
 # Global variables for easier transitons
 numberOfStates = 0
 alphabets = []          # List of alphabets
@@ -16,13 +27,92 @@ startStateAfterE = None # Start state after epsilon transition
 newDFATransition = {}   # Map for DFA transition
 newStartState = None    # new start state for DFA
 newAcceptStates = set() #set of accepting states
-newStatesMarked = list()
-stringsList = []
-root = None
+newStatesMarked = list()#New states that were visted
+root = None 			#tree root
 stateNumber = 0
 finalNFA = None
 startState = None
-resultFile = None
+resultFile = None 		# file to write to
+
+
+
+concatedExpressionList = [] #list of input concated
+
+"""
+Function: readFile
+Arguments: fileName
+Description:
+	Open the file, fileName, and parse through the file to
+	properly assign global variables for the NFA to 
+	DFA conversion
+"""
+def readFile(fileName):
+
+	global alphabets
+	global inputs
+
+	with open(fileName,'r') as f:
+
+		x = f.readline()
+		alphabets = list((x.strip("\n")))
+
+		# Read in the Regular Expression
+		m = f.readline()
+		m = m.replace(" ", "")
+		m = m.strip("\n")
+		makeConcatToAppear(m)
+
+		# Create syntax tree
+
+		# setUpTheNodesInTree(m.strip("\n"))
+		m = f.readline()
+
+		# Read in the inputs
+		while m:
+			# setUpTheNodesInTree(m.strip("\n"))
+
+			inputs.append(m.strip("\n"))
+			m = f.readline()
+
+
+"""
+Class: NFAObject
+Arguments: None
+Description:
+	An object to represent an NFA
+"""
+
+class NFAObject:
+
+	states = list()
+	accept = list()
+	def __init__(self, start, states, accept, transition):
+		self.start = start
+		self.states = states
+		self.accept = accept
+		self.transition = transition
+
+"""
+Class: Node
+Arguments: None
+Description:
+	Setting up the tree
+	Nodes to represent tree nodes in the syntax tree
+	Note: * operator only has a left child
+"""
+class Node:
+
+	def __init__(self, value, left=None, right=None):
+		self.value = value
+		self.left = left
+		self.right = right
+	def __str__(self):
+		return str(self.value)
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+#	C O N V E R T  F R O M  NFA TO DFA
+""""""""""""""""""""""""""""""""""""""""""""""""
+
 """
 Function: conversionToDFA
 Arguments: none
@@ -32,6 +122,7 @@ Description:
 	keeping track of what states the NFA would be at
 """
 def conversionToDFA():
+
 	DFATransitions = defaultdict()
 	global newStatesMarked
 	queue = deque()
@@ -39,43 +130,27 @@ def conversionToDFA():
 	start = list(startStateAfterE)
 	if start not in queue:
 		queue.append(start)
-	#print("pritning queue")
-	#print(queue)
-	#print(len(queue))
+
 	while (queue):
 		currentState = queue.popleft()
-		#print("current state")
-		#print(currentState)
-		#print('queue')
 		newStatesMarked.append(currentState)
 		nextStates = list()
 		for a in alphabets:
-			#print(len(alphabets))
 			nextStates = list()
 			if currentState:
-				#print("current state is")
-				#print(currentState)
 				for eachState in currentState:
 					v = tuple((int(eachState), a))
-					#print(transition_NFA)
 					if v in transition_NFA:
-						#print("v is " + str(v))
 						for x in transition_NFA[v]:
 							if x not in nextStates:
 								nextStates.append(x)
-								#print('x is' + str(x))
 				# Check what state the next states could be in 
 				# with the episilon transitions
-				#print(nextStates)
-				#print(currentState)
-
-
 				epsilonTransition(nextStates, currentState)
 				# Add to the new transition function
 				nextStates = sorted(nextStates)
 			else:
 				nextStates = currentState	
-				#print(nextStates)
 
 			DFATransitions[tuple((tuple(currentState,), a))] = nextStates
 
@@ -83,8 +158,6 @@ def conversionToDFA():
 				and (sorted(nextStates) not in newStatesMarked)):
 				queue.append(sorted(nextStates))
 	#Covert from set of one states to set of integers
-	print("Printing DFA transiton")
-	print(DFATransitions)
 	changeStateNames(DFATransitions)
 
 
@@ -96,6 +169,7 @@ Description:
 	with the episilon transitions
 """
 def epsilonTransition(nextStates, currentState):
+
 	checkForE = deque()
 	checkForE.append(nextStates)
 	checkedForE = list()
@@ -105,13 +179,10 @@ def epsilonTransition(nextStates, currentState):
 		for eachState in curState:
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
-				#print(curState)	
 				v = tuple((int(eachState), "e"))
 				if v in transition_NFA:
 					mult = transition_NFA[v]
 					for x in mult:
-						#print('printing x')
-						#print(x)
 						# Check if multiple epsilon transitions from the state
 						if type(x) is list:
 							for y in x:
@@ -136,31 +207,26 @@ Description:
 	for epsilon transitions
 """
 def findNewStartState():
+
 	global startStateAfterE
 	global startState
 	checkForE = deque()
 	checkForE.append(startState)
 	checkedForE = list()
-	print(startState)
-
 	nextStates = list()
 	nextStates.extend(startState)
+
 	while (checkForE):
 		curState = checkForE.popleft()
-		#print("current state")
-		#print(curState)
+
 		for eachState in curState:
 			eachState = int(eachState)
-			#print("eachState")
-			#print(eachState)
+
 			if eachState not in sorted(checkedForE):
 				checkedForE.append(eachState)
 				# search for any epsilon transitions
 				v = tuple((int(eachState), "e"))
-				#print('v')
-				#print(v)
 				if v in transition_NFA:
-					#print(transition_NFA[v])
 					mult = transition_NFA[v]
 					for x in mult:
 						# Check if multiple epsilon transitions from the state
@@ -175,10 +241,7 @@ def findNewStartState():
 								nextStates.append(int(x))
 								if (x not in sorted(checkForE)) and (x not in sorted(checkedForE)):
 									checkForE.append([x])
-	print(nextStates)
 	startStateAfterE = sorted(nextStates)
-	print("Starte staate after e")
-	print(startStateAfterE)
 
 
 """
@@ -190,15 +253,13 @@ Description:
 	from the form of set of states to just one integer.
 """
 def changeStateNames(DFATransitions):
+
 	lookup = {}
 	i = 1
 	global newDFATransition
 	global newStartState
 	global newAcceptStates
 	# Go through every transition states
-	print('new transitions')
-	print(DFATransitions)
-
 	for key, inp in DFATransitions:
 		value = DFATransitions[key, inp]
 		# key is a current state in the NFA
@@ -218,9 +279,6 @@ def changeStateNames(DFATransitions):
 		newDFATransition[newKey] = newValue
 
 	newStartState = lookup[tuple(startStateAfterE,)]
-	print("ACCEPTING STATES")
-	print(acceptingStates)
-	print(lookup)
 	# lookup new accept states
 	for keys in lookup:
 		for s in acceptingStates:
@@ -228,45 +286,11 @@ def changeStateNames(DFATransitions):
 				newAcceptStates.add(lookup[keys])
 
 
-"""
-Function: readFile
-Arguments: fileName
-Description:
-	Open the file, fileName, and parse through the file to
-	properly assign global variables for the NFA to 
-	DFA conversion
-"""
-def readFile(fileName):
 
-	global alphabets
-	global inputs
 
-	with open(fileName,'r') as f:
-
-		x = f.readline()
-		alphabets = list((x.strip("\n")))
-		print(alphabets)
-
-		# Read in the Regular Expression
-		m = f.readline()
-		m = m.replace(" ", "")
-		m = m.strip("\n")
-		makeConcatToAppear(m)
-
-		# Create syntax tree
-
-		# setUpTheNodesInTree(m.strip("\n"))
-		m = f.readline()
-
-		# Read in the inputs
-		while m:
-			# setUpTheNodesInTree(m.strip("\n"))
-
-			inputs.append(m.strip("\n"))
-			m = f.readline()
-
-		print(inputs)
-
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#	C H E C K   IF  I N P U T  IS  A C C E P T T E D  BY  DFA
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """
 Function: checkDFAInput
@@ -277,12 +301,9 @@ Description:
 	and write false for inputs not in the regular expression
 """
 def checkDFAInput():
+
 	currentState = newStartState
-	print("start")
-	print(newStartState)
-	print(newDFATransition)
-	print(newAcceptStates)
-	print(inputs)
+
 	if (inputs) :
 		with open(resultFile, 'w') as f:
 
@@ -292,10 +313,8 @@ def checkDFAInput():
 				# if the accepting state was same as the current sate
 				if len(val) == 0:
 					if currentState in newAcceptStates:
-						print("true")
 						f.write("true\n")
 					else:
-						print("False")
 						f.write("false\n")
 
 				else:
@@ -309,25 +328,17 @@ def checkDFAInput():
 							reject = True
 
 					if currentState in newAcceptStates and not reject:
-						print("true")
 						f.write("true\n")
 
 					else:
-						print("False")
 						f.write("false\n")
 
 
-# Setting up the tree
 
-# Nodes to represent tree nodes in the syntax tree
-# Note: * operator only has a left child
-class Node:
-	def __init__(self, value, left=None, right=None):
-		self.value = value
-		self.left = left
-		self.right = right
-	def __str__(self):
-		return str(self.value)
+""""""""""""""""""""""""""""""""""""""""""""""""
+#	C O N V E R T  F R O M  REGEX TO NFA
+""""""""""""""""""""""""""""""""""""""""""""""""
+
 """
 Function: print_tree
 Arguments: the root node of the tree
@@ -335,6 +346,7 @@ Description:
 	Function to print the values in the syntax tree
 """
 def print_tree(node, level=0):
+
 	if node == None: return
 	print('\t' * level + node.value)
 	print_tree(node.left, level + 1)
@@ -347,18 +359,11 @@ Description:
 	Parse the regular expression to create a syntax tree
 """
 def setUpTheNodesInTree(expression):
+
 	global root
 	operatorStack = []
 	operandsStack = []
-	for i in expression:
-		print('operands stack')
-		for a in operandsStack:
-			print(a)
-		print('operator stack')
-		print(operatorStack)
-		print('processing i')
-		print(i)
-		
+	for i in expression:		
 		# Check if symbol from the alphabet
 		if(i in alphabets or i == 'e'):
 			x = Node(i)
@@ -374,9 +379,7 @@ def setUpTheNodesInTree(expression):
 				v = operatorStack.pop()
 			if (v != '(' and len(operatorStack) == 0):
 				with open(resultFile, 'w') as f:
-
-					print("Invalid expression")
-					f.write("Invalid expression")
+					f.write("Invalid expression\n")
 					exit()
 		# Check if an operator
 		elif(i in processingActions and i != 'e'):
@@ -387,9 +390,6 @@ def setUpTheNodesInTree(expression):
 					# check if op has a greater than or equal precedence to operator just scanned
 					# precedence is star highest, then concatenation, then union
 					if((op == '*') | (op == '`' and i == '|') | (op == '`' and i != '*') | (op == '|' and i == '|')):
-						print(op)
-						print(i)
-						print('op >= i')
 						# op >= i
 						# create new syntax tree and add it to operands stack
 						createNewSyntaxTree(op, operandsStack, operatorStack)
@@ -407,10 +407,8 @@ def setUpTheNodesInTree(expression):
 					cont = False
 		else:
 				#invalid expression throw error
-			print(i)
 			with open(resultFile, 'w') as f:
-				print("Invalid expression")
-				f.write("Invalid expression")			
+				f.write("Invalid expression\n")			
 				exit()
 	# There are no more characters to scan
 	# Empty the operator stack and create new syntax tree for each operator
@@ -419,8 +417,6 @@ def setUpTheNodesInTree(expression):
 		createNewSyntaxTree(op, operandsStack, operatorStack)
 	# Pop the root of the syntax tree off the operand stack
 	root = operandsStack.pop()
-	print("printing syntax tree")
-	print_tree(root)
 
 
 """
@@ -435,20 +431,17 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 	with open(resultFile, 'w') as f:
 		if(op == '*'):
 			if(len(operandsStack) == 0):
-				print("Invalid expression")
-				f.write("Invalid expression")
+				f.write("Invalid expression\n")
 				exit()
 			left = operandsStack.pop()
 			x = Node(op, left)
 		else:
 			if(len(operandsStack) == 0):
-				print("Invalid expression")
-				f.write("Invalid expression")
+				f.write("Invalid expression\n")
 				exit()
 			right = operandsStack.pop()
 			if(len(operandsStack) == 0):
-				print("Invalid expression")
-				f.write("Invalid expression")
+				f.write("Invalid expression\n")
 				exit()
 			left = operandsStack.pop()
 			x = Node(op, left, right)
@@ -456,15 +449,6 @@ def createNewSyntaxTree(op, operandsStack, operatorStack):
 		operandsStack.append(x)
 
 
-# An object to represent an NFA
-class NFAObject:
-	states = list()
-	accept = list()
-	def __init__(self, start, states, accept, transition):
-		self.start = start
-		self.states = states
-		self.accept = accept
-		self.transition = transition
 
 """
 Function: helperSyntaxTreeToNFA
@@ -476,24 +460,16 @@ Description:
 	should be set.
 """
 def helperSyntaxTreeToNFA(val):
+
 	global startState
 	global finalNFA
 	global transition_NFA
 	finalNFA = syntaxTreeToNFA(val)
-	print("Final NFA")
-	print(vars(finalNFA).items())
 	startState = finalNFA.start
-	print("start state is" + str(startState))
-	print("FINAL NFA ACCEPT")
-	print(finalNFA.accept)
 	acceptingStates.update(finalNFA.accept)
-	print(acceptingStates)
 	numberOfStates = len(finalNFA.states)
-	print(numberOfStates)
 	transition_NFA = finalNFA.transition
 	transition_NFA = dict((k,v) for k,v in transition_NFA.items())
-
-	print(transition_NFA)
 
 """
 Function: syntaxTreeToNFA
@@ -503,6 +479,7 @@ Description:
 	input Node.
 """
 def syntaxTreeToNFA(val):
+
 	global stateNumber
 	current = val.value
 	if (current in alphabets):
@@ -529,11 +506,7 @@ def syntaxTreeToNFA(val):
 			left = syntaxTreeToNFA(val.left)
 		if val.right:
 			right = syntaxTreeToNFA(val.right)
-		print("syntaxTreeToNFA")
-		print(left)
-		print(vars(left).items)
-		print(right)
-		print(vars(right))
+
 		return concat(left, right)
 	elif (current == '|'):
 		if val.left:
@@ -542,7 +515,9 @@ def syntaxTreeToNFA(val):
 			right = syntaxTreeToNFA(val.right)
 		return union(left, right)
 
-
+""""""""""""""""""""""""""""""""""""""""""""""""
+#	S Y N T A X   T R E E   O P E R A T I O N S
+""""""""""""""""""""""""""""""""""""""""""""""""
 """
 Function: epsilon
 Arguments: None
@@ -550,6 +525,7 @@ Description:
 	Create an NFAObject object for the epsilon regex
 """
 def epsilon():
+
 	global stateNumber
 	states = list()
 	states.append(stateNumber)
@@ -568,6 +544,7 @@ Description:
 	Create an NFAObject object for the emptySet regex
 """
 def emptySet():
+
 	states = list()
 	states.append(stateNumber)
 	trans = defaultdict()
@@ -575,7 +552,6 @@ def emptySet():
 	start = [stateNumber]
 	stateNumber = stateNumber + 1
 	return NFAObject(start, states, accept, trans )
-	print('empty')
 
 """
 Function: union
@@ -584,23 +560,12 @@ Description:
 	Create an NFAObject object for the union regex
 """
 def union(left, right):
-	print("in union")
-	print(left)
-	print(vars(left).items())
-	print(right)
-	print(vars(right).items())
+
 	global stateNumber
 	newStart = stateNumber
 	newStates = right.states + left.states
 	newStates.append(newStart)
-	print("printing newstates in union")
-	print(newStates)
 	transition = defaultdict()
-	r = right.start
-	print(type(r))
-	l = left.start
-	print("printing type")
-	print(r + l)
 	transition[tuple((newStart, 'e'))] = right.start + left.start
 	transition.update(right.transition)
 	transition.update(left.transition)
@@ -615,6 +580,7 @@ Description:
 	Create an NFAObject object for the star regex
 """
 def star(left):
+
 	global stateNumber
 	newStart = stateNumber
 	newStates = left.states
@@ -636,11 +602,7 @@ Description:
 	Create an NFAObject object for the concat regex
 """
 def concat(left, right):
-	print("in concat")
-	print(left)
-	print(vars(left).items())
-	print(right)
-	print(vars(right).items())
+
 	newStart = left.start
 	newStates = right.states + left.states
 	left.transition.update(right.transition)
@@ -654,15 +616,16 @@ def concat(left, right):
 	accept = right.accept
 	return NFAObject(newStart, newStates, accept, transition)
 
-processingActions = {
+
+
+ # Dictionary of all the actions available
+processingActions = { 
 	'e': epsilon,
 	'N': emptySet,
 	'|': union,
 	'*': star,
 	'`':concat,
 }
-
-concatedExpressionList = []
 
 """
 Function: makeConcatToAppear
@@ -671,15 +634,13 @@ Description:
 	Make the concatination shown for ace of putting it in the tree
 """
 def makeConcatToAppear(expression):
+
 	concatExp = ''
-	print(expression)
-	print ('length of expression is ' + str(len(expression)))
+
 	if (len(expression)>1):
 		for i in range(len(expression)-1):
 			currentChar = expression[i]
-			print('currentChat ' + currentChar)
 			nextChar = expression[i+1]
-			print('nextChar ' + nextChar)
 
 			#Have if statment to check for epsilon and empty expressions
 			if not currentChar and not nextChar:
@@ -688,10 +649,9 @@ def makeConcatToAppear(expression):
 			if ((currentChar == ')' or currentChar == '*' or ((currentChar not in processingActions) and currentChar != '('))
 	            and (nextChar == '(' or ((nextChar not in processingActions) and nextChar != ')'))):
 				concatExp += currentChar + '`'
-				print('hello')
 			else:
 				concatExp +=currentChar
-		print(concatExp)
+
 		fullyConcat =  concatExp + expression[len(expression)-1]
 		concatedExpressionList.append(fullyConcat)
 	else:
@@ -699,14 +659,13 @@ def makeConcatToAppear(expression):
 
 
 if __name__ == '__main__':
+
 	if len(sys.argv) < 3:
 		print ("Usage: \nArgument 1: Regex text file (e.g: re1In.txt) \n"
 					+ "Argument 2: Desired file name to write the results to (e.g: DFA1_result.txt)\n" )
 	else:
 		readFile(sys.argv[1])
 		resultFile = sys.argv[2]
-		print('Printing fully concat list')
-		print(concatedExpressionList)
 		for regex in concatedExpressionList:
 			setUpTheNodesInTree(regex)
 		helperSyntaxTreeToNFA(root)
